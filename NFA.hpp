@@ -60,5 +60,7 @@ public:
        get NFA parameters as a string for debuging purposes 
     */
     string toString();
+
+    // void generateTransitionTable();
 };
 #endif
