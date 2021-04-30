@@ -29,3 +29,5 @@ string NFA::toString(){
     }
     return informations.str();
 }
+
+State* NFA::getStartState() {return this->startState;}

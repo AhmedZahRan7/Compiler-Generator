@@ -16,7 +16,7 @@ const string EPSILON_TRANSATION = "EPS";
 */
 class NFA {
 private:
-    State *startState,*finalState;
+    State *startState, *finalState;
     set<State*> states;
     map<State*,set<Transation*>> transationsFromState;
 public:
@@ -62,5 +62,8 @@ public:
     string toString();
 
     // void generateTransitionTable();
+
+    State* getStartState();
+    vector<string>* getInputSymbols();
 };
 #endif

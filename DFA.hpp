@@ -5,8 +5,9 @@
 class DFA{
 private:
     State *startState;
-    set<State*> states;
+    set<set<State*>*> states;
     map<State*,set<Transation*>> transationsFromState;
+    map<set<State*>*, State*> DStates;
 public:
     // DFA();
     /**
@@ -15,6 +16,11 @@ public:
      * @param nfa 
      */
     DFA(NFA* nfa);
+    void build(NFA* nfa);
     void minimize();
+    set<State*>* epsClosure(State* s);
+    set<State*>* epsClosure(set<State*>& states);
+    set<State*>* move(State* s, string a);
+    set<State*>* move(set<State*>& states, string a);
 };
 #endif
