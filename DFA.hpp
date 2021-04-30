@@ -5,9 +5,10 @@
 class DFA{
 private:
     State *startState;
-    set<set<State*>*> states;
+    set<set<State*>> states;
     map<State*,set<Transation*>> transationsFromState;
     map<set<State*>*, State*> DStates;
+    vector<string> inputSymbols;
 public:
     // DFA();
     /**
@@ -15,12 +16,13 @@ public:
      * using the Subset construction algorithm
      * @param nfa 
      */
-    DFA(NFA* nfa);
+    // DFA(NFA* nfa);
+    DFA(NFA* nfa, vector<string> inputSymbols);
     void build(NFA* nfa);
     void minimize();
-    set<State*>* epsClosure(State* s);
-    set<State*>* epsClosure(set<State*>& states);
-    set<State*>* move(State* s, string a);
-    set<State*>* move(set<State*>& states, string a);
+    set<State*>& epsClosure(State* s);
+    set<State*>& epsClosure(set<State*>& states);
+    set<State*>& move(State* s, string a);
+    set<State*>& move(set<State*>& states, string a);
 };
 #endif
