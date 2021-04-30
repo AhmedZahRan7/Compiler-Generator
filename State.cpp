@@ -21,10 +21,10 @@ string State::getID(){
     return this->id;
 }
 
-void State::setAcceptingToken(Token* token){
-    this->acceptingToken = token;
+void State::setAcceptingTokenKey(TokenKey* tokenKey){
+    this->acceptingTokenKey = tokenKey;
 }
 
-Token* State::getAcceptingToken(){
-    return this->getIsAcceptingState() ? this->acceptingToken : NULL;
+TokenKey* State::getAcceptingTokenKey(){
+    return this->getIsAcceptingState() ? this->acceptingTokenKey : NULL;
 }

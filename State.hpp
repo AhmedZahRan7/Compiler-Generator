@@ -1,19 +1,19 @@
 #ifndef STATE_HPP
 #define STATE_HPP
 #include "utilities.hpp"
-#include "Token.hpp"
+#include "TokenKey.hpp""
 class State{
 private:
     string id;
     bool isAcceptingState;
-    Token* acceptingToken; 
+    TokenKey* acceptingTokenKey; 
 public:
     State();
     bool getIsAcceptingState();
     void markAsAcceptingState();
     void markAsNotAcceptingState();
-    Token* getAcceptingToken();
-    void setAcceptingToken(Token* token);
+    TokenKey* getAcceptingTokenKey();
+    void setAcceptingTokenKey(TokenKey* tokenKey);
     string getID();
 };
 #endif
