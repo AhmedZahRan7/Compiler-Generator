@@ -20,3 +20,11 @@ void State::markAsNotAcceptingState(){
 string State::getID(){
     return this->id;
 }
+
+void State::setAcceptingToken(Token* token){
+    this->acceptingToken = token;
+}
+
+Token* State::getAcceptingToken(){
+    return this->getIsAcceptingState() ? this->acceptingToken : NULL;
+}

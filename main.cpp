@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 #include "NFA.hpp"
+#include "Token.hpp"
 int main() {
     NFA* nfa1 = new NFA("a");
     NFA* nfa2 = new NFA("b");

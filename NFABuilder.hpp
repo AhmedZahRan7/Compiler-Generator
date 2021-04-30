@@ -7,7 +7,8 @@ private:
     NFA *nfa;
     fstream file;
     void buildTheNfa();
-    char getNextChar();
+    string getNextLine();
+    void parseRule(string line);
 public:
     // NFABuilder();
     NFABuilder(string path);    
