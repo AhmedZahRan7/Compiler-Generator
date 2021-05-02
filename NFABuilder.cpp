@@ -1,6 +1,6 @@
 #include "NFABuilder.hpp"
 
-NFABuilder::NFABuilder(string path = "lexical_rules.txt"){
+NFABuilder::NFABuilder(string path){
     this->file.open(path,ios::in);
     if(!this->file.is_open()) cout<<"File not exist";
     else buildTheNfa();
@@ -14,7 +14,7 @@ NFA* NFABuilder::getNFA(){
 void NFABuilder::buildTheNfa(){
     string line;
     while(getline(this->file,line)){
-        // cout<<line<<endl;
+        cout<<line<<endl;
         parseRule(line);
     }
     this->file.close();

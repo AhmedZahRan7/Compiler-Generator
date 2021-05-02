@@ -6,7 +6,11 @@ all +=State.cpp
 all +=Transation.cpp
 all +=NFA.cpp
 all +=utilities.cpp
-
+# all +=Token.cpp
+# all +=TokenKey.cpp
+# all +=TokenValue.cpp
+all +=NFABuilder.cpp
+# all +=DFA.cpp
 outName = run
 
 build: clean

@@ -39,22 +39,22 @@ public:
         then the current conervted into (Start) --a-->(midState) --b--> ((finalState))
         @param secondNFA the another NFA to be concatinated with the current NFA.
     */
-    void concatinateWith(NFA* secondNFA);
+    NFA* concatinateWith(NFA* secondNFA);
 
     /**
         union the current NFA with another NFA.
         @param secondNFA the another NFA to be unioned with the current NFA.
     */
-    void unionWith(NFA* secondNFA);
+    NFA* unionWith(NFA* secondNFA);
 
     /**
         Kleene Closure of the current NFA
     */    
-    void convertIntoKleeneclosure();
+    NFA* convertIntoKleeneclosure();
      /**
         Postive Closure of the current NFA
     */
-    void convertIntoPostiveclosure();
+    NFA* convertIntoPostiveclosure();
 
     /**
        get NFA parameters as a string for debuging purposes 
