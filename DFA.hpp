@@ -19,6 +19,8 @@ public:
     // DFA(NFA* nfa);
     DFA(NFA* nfa, vector<string> inputSymbols);
     void build(NFA* nfa);
+    set<set<State*>>& partition(set<set<State*>>& groups, string x);
+    bool NextToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s);
     void minimize();
     set<State*>& epsClosure(State* s);
     set<State*>& epsClosure(set<State*>& states);
