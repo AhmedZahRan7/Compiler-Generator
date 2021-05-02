@@ -1,5 +1,9 @@
 #include "NFA.hpp"
 
+NFA::NFA(){
+
+}
+
 NFA::NFA(string input){
     this->states.insert(this->startState = new State());
     this->states.insert(this->finalState = new State());
@@ -81,4 +85,27 @@ string NFA::toString(){
     return informations.str();
 }
 
+
+void NFA::addState(State* state){
+    this->states.insert(state);
+}
+void NFA::addTransation(State* from,State* to,string cond){
+    this->transationsFromState[from].insert(new Transation(from,to,cond));
+}
+
+/**
+ * @todo use addState() and addTrans() in other implementations 
+ */
+
+set<State*> NFA::getStates(){
+    return this->states;
+}
+
+
+void NFA::setStartState(State* state){
+    this->startState = state;
+}
+
 State* NFA::getStartState() {return this->startState;}
+State* NFA::getFinalState() {return this->finalState;}
+

@@ -17,3 +17,18 @@ string generateID(){
     else ID[lastIdx]++;
     return returnString;
 }
+
+string trim(string& str){
+    str.erase(0, str.find_first_not_of(' '));       //prefixing spaces
+    str.erase(str.find_last_not_of(' ')+1);         //surfixing spaces
+    return str;
+}
+
+void removeSpaces(string &str){
+    string str2;
+    for(char c:str){
+        if(c==' ' && str2.back()==' ') continue;
+        str2 += c; 
+    }
+    str = trim(str2);
+}

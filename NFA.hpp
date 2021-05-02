@@ -61,9 +61,13 @@ public:
     */
     string toString();
 
-    // void generateTransitionTable();
-
+    void addState(State* state);
+    void addTransation(State* from,State* to,string cond);
+    set<State*> getStates();
+    
+    void setStartState(State* state);
     State* getStartState();
+    State* getFinalState();
     vector<string>* getInputSymbols();
 };
 #endif
