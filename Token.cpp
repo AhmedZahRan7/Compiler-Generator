@@ -1,6 +1,6 @@
 #include "Token.hpp"
 
-vector<TokenKey*>* Token::keys = new vector<TokenKey*>;
+set<TokenKey*>* Token::keys = new set<TokenKey*>;
 
 Token::Token(TokenKey* key,TokenValue* value){
     this->key = key;
@@ -13,8 +13,8 @@ TokenValue* Token::getValue(){
     return this->value;
 }
 void Token::addTokenKey(TokenKey* key){
-    keys->push_back(key);
+    keys->insert(key);
 }
-vector<TokenKey*>* Token::getOrderedKeys(){
+set<TokenKey*>* Token::getOrderedKeys(){
     return keys;
 }

@@ -19,13 +19,13 @@ class Token {
 private:
     TokenKey* key;
     TokenValue* value;
-    static vector<TokenKey*>* keys;
+    static set<TokenKey*>* keys;
 public:
     Token();
     Token(TokenKey* key,TokenValue* value);
     TokenKey* getKey();
     TokenValue* getValue();
     static void addTokenKey(TokenKey*);
-    static vector<TokenKey*>* getOrderedKeys();
+    static set<TokenKey*>* getOrderedKeys();
 };
 #endif

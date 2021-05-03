@@ -24,6 +24,8 @@ private:
     void regularExpressionParser(string& line);
     NFA* formNfaForKeyWord(string word,TokenKey* key);
     void mergeNfaList();
+    NFA* buildNFAFromPostfixExpression(vector<string> postfix);
+    unordered_map<string,NFA*> regularDefinitionNFAs;
 public:
     // NFABuilder();
     NFABuilder(string path);    
