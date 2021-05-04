@@ -64,7 +64,7 @@ public:
     void addState(State* state);
     void addTransation(State* from,State* to,string cond);
     set<State*> getStates();
-    
+    set<Transation*> getTransationFromState(State* state);
     void setStartState(State* state);
     State* getStartState();
     State* getFinalState();

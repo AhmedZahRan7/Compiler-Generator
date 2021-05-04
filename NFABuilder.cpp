@@ -139,8 +139,10 @@ void NFABuilder::mergeNfaList(){
     State * startState = new State();
     for(NFA * addNFA : this->nfaList){
         this->nfa->addTransation(startState,addNFA->getStartState(),EPSILON_TRANSATION);
-        for(State* state : addNFA->getStates()) this->nfa->addState(state);
-        for(State* state : addNFA->getStates()) this->nfa->addState(state);
+        for(State* state : addNFA->getStates()){
+            this->nfa->addState(state);
+            for(Transation* t : addNFA->getTransationFromState(state)) this->nfa->addTransation(t->from,t->to,t->condition);
+        }
     }
     this->nfa->setStartState(startState);
 }

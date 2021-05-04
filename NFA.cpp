@@ -102,6 +102,9 @@ void NFA::setStartState(State* state){
     this->startState = state;
 }
 
+set<Transation*> NFA::getTransationFromState(State* state){
+    return this->transationsFromState[state];
+}
 State* NFA::getStartState() {return this->startState;}
 State* NFA::getFinalState() {return this->finalState;}
 
