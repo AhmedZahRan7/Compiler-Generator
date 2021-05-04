@@ -10,7 +10,7 @@ all +=Token.cpp
 all +=TokenKey.cpp
 all +=TokenValue.cpp
 all +=NFABuilder.cpp
-# all +=DFA.cpp
+all +=DFA.cpp
 outName = run
 
 build: clean

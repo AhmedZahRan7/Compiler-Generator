@@ -77,7 +77,7 @@ NFA* NFA::convertIntoPostiveclosure(){
 string NFA::toString(){
     stringstream informations;
     informations << "Start state is "+this->startState->getID()+"\n";
-    informations << "Final state is "+this->finalState->getID()+"\n";
+    // informations << "Final state is "+this->finalState->getID()+"\n";
     for(auto p : this->transationsFromState){
         informations<<p.first->getID()<<"  \n";
         for(Transation* trans : p.second) informations<<"--"<<trans->condition<<"-->"<<trans->to->getID()<<"  \n";

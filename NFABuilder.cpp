@@ -20,7 +20,6 @@ void NFABuilder::buildTheNfa(){
 
 void NFABuilder::parseRule(string& line){
     removeSpaces(line);
-    // cout<<line<<endl;
     RuleType type = detectRuleType(line);
     if(type == KeyWord) keyWordParser(line);
     if(type == Punctuation) punctuationParser(line);
@@ -131,7 +130,7 @@ void NFABuilder::regularExpressionParser(string& line){
     NFA* generatedNFA = buildNFAFromPostfixExpression(infixToPostfix(expression));
     TokenKey* key = new TokenKey(name);
     generatedNFA->getFinalState()->setAcceptingTokenKey(key);
-    Token().addTokenKey(key);
+    Token::addTokenKey(key);
     this->nfaList.push_back(generatedNFA);
 }
 
@@ -140,6 +139,7 @@ void NFABuilder::mergeNfaList(){
     State * startState = new State();
     for(NFA * addNFA : this->nfaList){
         this->nfa->addTransation(startState,addNFA->getStartState(),EPSILON_TRANSATION);
+        for(State* state : addNFA->getStates()) this->nfa->addState(state);
         for(State* state : addNFA->getStates()) this->nfa->addState(state);
     }
     this->nfa->setStartState(startState);
