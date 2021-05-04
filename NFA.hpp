@@ -9,7 +9,7 @@ const string EPSILON_TRANSATION = "EPS";
     build the NFA is to define the first transation then constract the whole FNA by constraction
     using 4 operations (Concatenation, Union, Kleene closure, Positive closure)
 
-    @param statrtState the state where the NFA should start from.
+    @param startState the state where the NFA should start from.
     @param finalState the state where the NFA should end ie:There is no more AC transations.
     @param States set of states in this machine.
     @param transationsFromState maping between states and transations out of it.
@@ -33,29 +33,30 @@ public:
     NFA(string input);
 
     /**
-        concatinate the current NFA with another NFA.
+        concatenate the current NFA with another NFA.
         ex: if the current is  (Start) --a--> ((finalState))
         and the secondNFA is (Start) --b--> ((finalState))
         then the current conervted into (Start) --a-->(midState) --b--> ((finalState))
         @param secondNFA the another NFA to be concatinated with the current NFA.
     */
-    NFA* concatinateWith(NFA* secondNFA);
+    static NFA* concatenate(NFA* firstNFA,NFA* secondNFA);
 
     /**
         union the current NFA with another NFA.
         @param secondNFA the another NFA to be unioned with the current NFA.
     */
-    NFA* unionWith(NFA* secondNFA);
+    static NFA* unionWith(NFA* firstNFA,NFA* secondNFA);
 
     /**
         Kleene Closure of the current NFA
     */    
-    NFA* convertIntoKleeneclosure();
+    static NFA* convertIntoKleeneClosure(NFA* nfa);
      /**
-        Postive Closure of the current NFA
+        Positive Closure of the current NFA
     */
-    NFA* convertIntoPostiveclosure();
+    static NFA* convertIntoPositiveClosure(NFA* nfa);
 
+    static NFA* formNFAForRangeOperator(char from,char to);
     /**
        get NFA parameters as a string for debuging purposes 
     */
@@ -63,6 +64,8 @@ public:
 
     void addState(State* state);
     void addTransation(State* from,State* to,string cond);
+    void addTransation(State* from,Transation* trans);
+    void setFinalState(State* state);
     set<State*> getStates();
     set<Transation*> getTransationFromState(State* state);
     void setStartState(State* state);

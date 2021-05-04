@@ -3,6 +3,7 @@
 
 State::State(){
     this->id = generateID();
+    markAsNotAcceptingState();
 }
 
 bool State::getIsAcceptingState(){
