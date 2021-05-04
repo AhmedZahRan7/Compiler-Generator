@@ -19,6 +19,7 @@ void NFABuilder::buildTheNfa(){
 }
 
 void NFABuilder::parseRule(string& line){
+    if(line.size()==0) return;
     removeSpaces(line);
     RuleType type = detectRuleType(line);
     if(type == KeyWord) keyWordParser(line);
@@ -47,8 +48,8 @@ void NFABuilder::punctuationParser(string& line){
 
 NFA* NFABuilder::formNfaForKeyWord(string word,TokenKey* key){
     if(word.size()==0) return NULL;
-    NFA* nfa = new NFA(to_string(word[0]));
-    for(int i=1;i<word.size();i++) nfa->concatinateWith(new NFA(to_string(word[i])));
+    NFA* nfa = new NFA(string(1,word[0]));
+    for(int i=1;i<word.size();i++) nfa->concatinateWith(new NFA(string(1,word[i])));
     nfa->getFinalState()->setAcceptingTokenKey(key);
     return nfa;
 }
@@ -141,7 +142,8 @@ void NFABuilder::mergeNfaList(){
         this->nfa->addTransation(startState,addNFA->getStartState(),EPSILON_TRANSATION);
         for(State* state : addNFA->getStates()){
             this->nfa->addState(state);
-            for(Transation* t : addNFA->getTransationFromState(state)) this->nfa->addTransation(t->from,t->to,t->condition);
+            for(Transation* t : addNFA->getTransationFromState(state))
+                this->nfa->addTransation(t->from,t->to,t->condition);
         }
     }
     this->nfa->setStartState(startState);
