@@ -142,3 +142,4 @@ string NFA::toString(){
     }
     return informations.str();
 }
+map<State*,set<Transation*>> NFA::getTransitionTable() {return this->transationsFromState;}

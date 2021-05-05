@@ -72,5 +72,6 @@ public:
     State* getStartState();
     State* getFinalState();
     vector<string>* getInputSymbols();
+    map<State*,set<Transation*>> getTransitionTable();
 };
 #endif

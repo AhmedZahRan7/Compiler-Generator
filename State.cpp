@@ -6,6 +6,11 @@ State::State(){
     markAsNotAcceptingState();
 }
 
+State::State(string a) {
+    this->id = a;
+    markAsNotAcceptingState();
+}
+
 bool State::getIsAcceptingState(){
     return this->isAcceptingState;
 }

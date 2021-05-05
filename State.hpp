@@ -9,6 +9,7 @@ private:
     TokenKey* acceptingTokenKey; 
 public:
     State();
+    State(string a);
     bool getIsAcceptingState();
     void markAsAcceptingState();
     void markAsNotAcceptingState();

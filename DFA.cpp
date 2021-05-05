@@ -1,11 +1,13 @@
 #include "DFA.hpp"
 
 DFA::DFA(NFA* nfa, string src_prog_path) {
+    setInputSymbols(src_prog_path);
     build(nfa);
+    minimize();
     parseSrcProgram(src_prog_path);
 }
 
-set<State*> stillUnmarked(map<set<State*>, bool>& markedStates) {
+set<State*> getUnmarked(map<set<State*>, bool>& markedStates) {
     set<State*> emptySet; 
     for (auto s : markedStates) {
         if (s.second == false) {
@@ -19,6 +21,7 @@ void modifyAcceptingState(State* s, set<State*>& T) {
     for (State* t : T) {
         if (t->getIsAcceptingState() == true) {
             s->markAsAcceptingState();
+            s->setAcceptingTokenKey(t->getAcceptingTokenKey());
             return;
         }
     }
@@ -26,38 +29,43 @@ void modifyAcceptingState(State* s, set<State*>& T) {
 }
 
 void DFA::build(NFA* nfa) {
-    this->startState = nfa->getStartState();
-    set<State*> firstState = epsClosure(startState);
-    states.insert(firstState);
+    this->transistionsTable = nfa->getTransitionTable();
+
+    set<State*> T = epsClosure(nfa->getStartState());
+    DStates[T] = new State();
+    this->startState = DStates[T];
+
+    set<set<State*>> statesBeforeMapping; 
+    statesBeforeMapping.insert(T);
 
     map<set<State*>, bool> markedStates;
-    markedStates[firstState] = false;
+    markedStates[T] = false;
 
-    set<State*> T = stillUnmarked(markedStates);
-    State* s = *T.begin();
-    cout << s->getID() << endl;
     while (!T.empty()) {
+        // cout << "T: "; printStates(T);
         markedStates[T] = true;
-        DStates[&T] = new State();
-        modifyAcceptingState(DStates[&T], T);
+        modifyAcceptingState(DStates[T], T);
         for (string a : inputSymbols) {
-            set<State*> tmp = move(T, a);
-            set<State*> U = epsClosure(tmp);
-            if (!U.empty() && states.find(U) == states.end()) {
-                states.insert(U);
-                markedStates[U] = false;
-                DStates[&U] = new State();
-                modifyAcceptingState(DStates[&U], U);
+            set<State*> U = epsClosure(move(T, a));
+            if (!U.empty()) {
+                // cout << "On input " << a << ": U = "; printStates(U);
+                if (statesBeforeMapping.find(U) == statesBeforeMapping.end()) {
+                    statesBeforeMapping.insert(U);
+                    markedStates[U] = false;
+                    DStates[U] = new State();
+                    modifyAcceptingState(DStates[U], U);
+                }
+                transistionsTable[DStates[T]].insert(new Transation(DStates[T], DStates[U], a));
             }
-            transationsFromState[DStates[&T]].insert(new Transation(DStates[&T], DStates[&U], a));
         }
-        T = stillUnmarked(markedStates);
+        T = getUnmarked(markedStates);
     }
 }
 
 set<set<State*>> DFA::partition(set<set<State*>>& groups, string x) {
     set<set<State*>> newGroups;
     for (set<State*> T : groups) {
+        // cout << "Current Group: "; printStates(T);
         unordered_map<State*, bool> markedStates;
         for (State* s : T) {
             markedStates[s] = false;
@@ -69,21 +77,22 @@ set<set<State*>> DFA::partition(set<set<State*>>& groups, string x) {
             set<State*> subgroup;
             subgroup.insert(*it);
             markedStates[*it] = true;
-            set<State*>::iterator jt;
-            for (jt = next(it, 1); jt != T.end(); ++jt) {
+            set<State*>::iterator jt = next(it, 1);
+            for (; jt != T.end(); ++jt) {
                 if (markedStates[*jt]) continue;
-                if (NextToSameGroup(groups, *it, *jt,x)) {
+                if (goToSameGroup(groups, *it, *jt, x)) {
                     subgroup.insert(*jt);
                     markedStates[*jt] = true;
                 }
             }
+            // printStates(subgroup);
             newGroups.insert(subgroup);
         }
     }
     return newGroups;
 }
 
-bool DFA::NextToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s) {
+bool DFA::goToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s) {
     set<State*>::iterator it = move(a, s).begin();
     State* nextOf_a= *it;
     it = move(b, s).begin();
@@ -105,12 +114,15 @@ void DFA::minimize(){
         State* curr = s.second;
         if (curr->getIsAcceptingState() == false) {
             subgroups[nonAccepting].insert(curr);
+            // cout << "Not accepting set : " << curr->getID() << " -> "; printStates(s.first);
         } else {
             subgroups[curr->getAcceptingTokenKey()].insert(curr);
+            // cout << curr->getAcceptingTokenKey()->getKey() << " set : " << curr->getID() << " -> "; printStates(s.first);
         }
     }
     for (auto entry : subgroups) {
         groups.insert(entry.second);
+        // cout << "Group "; printStates(entry.second); 
     }
     
     bool NotMinimized = true;
@@ -122,17 +134,18 @@ void DFA::minimize(){
         if (newGroups == groups) {
             NotMinimized = false;
         }
+        groups = newGroups;
     }
 }
 
 set<State*> DFA::epsClosure(State* s) {
-    set<State*> nextStates;
+    set<State*> nextStates = {s};
     stack<State*> stack;
     stack.push(s);
     while (!stack.empty()) {
         State* t = stack.top();
         stack.pop();
-        set<Transation*> transitions = transationsFromState[t];
+        set<Transation*> transitions = transistionsTable[t];
         for (auto trans : transitions) {
             State* u = trans->to;
             if (trans->condition == EPSILON_TRANSATION && nextStates.find(u) == nextStates.end()) {
@@ -144,20 +157,18 @@ set<State*> DFA::epsClosure(State* s) {
     return nextStates;
 }
 
-set<State*> DFA::epsClosure(set<State*>& states) {
-    set<State*> nextStates;
+set<State*> DFA::epsClosure(set<State*> states) {
+    set<State*> nextStates(states.begin(), states.end());
     for (auto s : states) {
         set<State*> tmp = epsClosure(s);
-        if (!tmp.empty()) {
-            nextStates.insert(tmp.begin(), tmp.end());
-        }
+        nextStates.insert(tmp.begin(), tmp.end());
     }
     return nextStates;
 }
 
 set<State*> DFA::move(State* s, string a) {
     set<State*> nextStates;
-    set<Transation*> transitions = transationsFromState[s];
+    set<Transation*> transitions = transistionsTable[s];
     for (auto t : transitions) {
         if (t->condition == a) {
             nextStates.insert(t->to);
@@ -166,7 +177,7 @@ set<State*> DFA::move(State* s, string a) {
     return nextStates;
 }
 
-set<State*> DFA::move(set<State*>& states, string a) {
+set<State*> DFA::move(set<State*> states, string a) {
     set<State*> nextStates;
     for (State* s : states) {
         set<State*> tmp = move(s, a);
@@ -177,11 +188,11 @@ set<State*> DFA::move(set<State*>& states, string a) {
     return nextStates;
 }
 
-vector<string> tokenize(string s, string del = " ") {
+vector<string> DFA::tokenize(string s, string del = " ") {
     string buffer;
     vector<string> tokens;
     for (char c : s) {
-        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')|| (c >= '0' && c <= '9')) {
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
             buffer += c;
         } else {
             tokens.emplace_back(buffer);
@@ -207,8 +218,9 @@ void DFA::parseSrcProgram(string path) {
     while (getline(this->file,line)) {
         vector<string> tokens = tokenize(line);
         for (string x : tokens) {
+            // cout << "Token: " << x << endl;
             State* s = simulate(x);
-            if (s->getIsAcceptingState() == true) {
+            if (s->getIsAcceptingState()) {
                 AcceptedTokens.push_back(new Token(s->getAcceptingTokenKey(), new TokenValue(x)));
             }
         }
@@ -216,20 +228,41 @@ void DFA::parseSrcProgram(string path) {
 
     // Printing Accepted Tokens for debugging
     for (auto t : AcceptedTokens) {
-        cout << "Token key: " << t->getKey()->getKey() << "Token Value: " << t->getValue() << endl;
+        cout << '{' << t->getKey()->getKey() << ", " << t->getValue()->getValue() << "}\n";
     }
 
     buildSymbolTable();
+    this->file.close();
+}
+
+void DFA::setInputSymbols(string path) {
+    this->file.open(path,ios::in);
+    if (!this->file.is_open()) cout << "File not exist";
+    string line;
+    while (getline(this->file,line)) {
+        for (char c : line) {
+            inputSymbols.insert(string(1, c));
+        }
+    }
+    this->file.close();
 }
 
 State* DFA::simulate(string x) {
-    State* s = startState;
-    int i = 0;
-    string c = string(1, x[i++]);
-    while (c[0] != EOF) {
-        auto it = move(s, c).begin();
-        s = *it;
-        c = string(1, x[i++]);
+    State* s = this->startState;
+    set<State*> curr_set;
+    for (char c : x) {
+        curr_set = move(s, string(1, c));
+        if (!curr_set.empty()) s = *curr_set.begin();
+        else return new State();
     }
     return s;
+}
+
+// Print T states ex: (A, B, C, D )
+void DFA::printStates(set<State*> T) {
+    cout << '(';
+    for (auto s : T) {
+        cout << s->getID() << " ";
+    }
+    cout << ")\n";
 }

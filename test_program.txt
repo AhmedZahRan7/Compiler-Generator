@@ -1,1 +1,6 @@
-int boolean float 7amo
+int sum , count , pass , mnt; while (pass !=
+10)
+{
+pass = pass + 1 ;
+}
+boolean float int intx

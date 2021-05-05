@@ -7,9 +7,17 @@
 			"command": "C:/MinGW/bin/g++.exe",
 			"args": [
 				"-g",
-				"${workspaceFolder}\\*.cpp",
+				"${workspaceFolder}\\DFA.cpp",
+				"${workspaceFolder}\\main.cpp",
+				"${workspaceFolder}\\NFA.cpp",
+				"${workspaceFolder}\\State.cpp",
+				"${workspaceFolder}\\Token.cpp",
+				"${workspaceFolder}\\TokenKey.cpp",
+				"${workspaceFolder}\\TokenValue.cpp",
+				"${workspaceFolder}\\Transation.cpp",
+				"${workspaceFolder}\\utilities.cpp",
 				"-o",
-				"${fileDirname}\\${fileBasenameNoExtension}.exe"
+				"${fileDirname}\\run.exe"
 			],
 			"options": {
 				"cwd": "C:/MinGW/bin"
