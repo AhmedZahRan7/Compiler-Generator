@@ -55,13 +55,13 @@ vector<string> split(string& str){
 vector<string> infixToPostfix(string expression){
     vector<string> postFix;
     stack<string> operators;
-    vector<string> splitedExpression = spiltInfixExpression(expression);
+    vector<string> splittedExpression = spiltInfixExpression(expression);
     int i=0;
     int lastI=0;
-    for(i=0;i<splitedExpression.size();i++){
-        string word = splitedExpression[i];
-        if(i>0 && i>lastI &&isConcatination(splitedExpression[i-1],splitedExpression[i])){
-            word = CONCATIONATION_OPERATOR;
+    for(i=0;i<splittedExpression.size();i++){
+        string word = splittedExpression[i];
+        if(i>0 && i>lastI &&isConcatenation(splittedExpression[i-1],splittedExpression[i])){
+            word = CONCATENATION_OPERATOR;
             lastI = i--;
         }
         if(isOperator(word)){
@@ -101,7 +101,7 @@ vector<string> infixToPostfix(string expression){
  * @return true if we need to consider concatination operator between these two words
  * @return false if not
  */
-bool isConcatination(string lastWord, string currentWord){
+bool isConcatenation(string lastWord, string currentWord){
     return lastWord != "(" && lastWord != UNION_OPERATOR && lastWord != RANGE_OPERATOR &&
     (currentWord == "(" || !isOperator(currentWord));
 }
@@ -121,17 +121,17 @@ bool isOperator(string c){
     return
     c ==  RANGE_OPERATOR ||
     c == UNION_OPERATOR ||
-    c == POSTIVE_CLOSURE_OPERATOR ||
+    c == POSITIVE_CLOSURE_OPERATOR ||
     c == KLEENE_CLOSURE_OPERATOR ||
     c == "(" ||
     c == ")" ||
-    c == CONCATIONATION_OPERATOR
+    c == CONCATENATION_OPERATOR
     ;
 }
 unordered_map<string,int> charPrecedence {
     {UNION_OPERATOR,0},
-    {CONCATIONATION_OPERATOR,1},
-    {POSTIVE_CLOSURE_OPERATOR,2},
+    {CONCATENATION_OPERATOR,1},
+    {POSITIVE_CLOSURE_OPERATOR,2},
     {KLEENE_CLOSURE_OPERATOR,2},
     {RANGE_OPERATOR,3},
 };

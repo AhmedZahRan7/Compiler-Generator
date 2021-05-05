@@ -11,7 +11,6 @@ enum RuleType{
 
 class NFABuilder{
 private:
-    NFA* nfa;
     vector<NFA*> nfaList;
     fstream file;
     void buildTheNfa();
@@ -23,8 +22,9 @@ private:
     void regularDefinitionParser(string& line);
     void regularExpressionParser(string& line);
     NFA* formNfaForKeyWord(string word,TokenKey* key);
-    void mergeNfaList();
+    NFA* mergeNfaList();
     NFA* buildNFAFromPostfixExpression(vector<string> postfix);
+    NFA* createNFAFromWord(string word);
     unordered_map<string,NFA*> regularDefinitionNFAs;
 public:
     // NFABuilder();

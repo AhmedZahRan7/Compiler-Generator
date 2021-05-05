@@ -1,5 +1,8 @@
 #include "NFA.hpp"
 NFA::NFA(){
+    addState(this->startState = new State());
+    addState(this->finalState = new State());
+    addTransation(this->startState,this->finalState,EPSILON_TRANSATION);
 }
 NFA::NFA(string input){
     addState(this->startState = new State());
@@ -128,10 +131,14 @@ NFA* NFA::formNFAForRangeOperator(char from,char to){
 string NFA::toString(){
     stringstream informations;
     informations << "Start state is "+this->startState->getID()+"\n";
-    informations << "Final state is "+this->finalState->getID()+"\n";
+    if(finalState!=NULL)informations << "Final state is "+this->finalState->getID()+"\n";
     for(auto p : this->transationsFromState){
         informations<<p.first->getID()<<"  \n";
-        for(Transation* trans : p.second) informations<<"--"<<trans->condition<<"-->"<<trans->to->getID()<<"  \n";
+        for(Transation* trans : p.second) {
+            informations<<"--"<<trans->condition<<"-->"<<trans->to->getID();
+            if(trans->to->getIsAcceptingState()) informations<<" ("<<trans->to->getAcceptingTokenKey()->getKey()<<")";
+            informations<<"  \n";
+        }
     }
     return informations.str();
 }
