@@ -78,6 +78,7 @@ void NFABuilder::regularExpressionParser(string& line){
     trim(name);
     NFA* generatedNFA = buildNFAFromPostfixExpression(infixToPostfix(expression));
     TokenKey* key = new TokenKey(name);
+    generatedNFA->getFinalState()->markAsAcceptingState();
     generatedNFA->getFinalState()->setAcceptingTokenKey(key);
     Token::addTokenKey(key);
     this->nfaList.push_back(generatedNFA);
@@ -85,6 +86,7 @@ void NFABuilder::regularExpressionParser(string& line){
 
 NFA* NFABuilder::formNfaForKeyWord(string word,TokenKey* key){
     NFA* nfa = createNFAFromWord(word);
+    nfa->getFinalState()->markAsAcceptingState();
     nfa->getFinalState()->setAcceptingTokenKey(key);
     return nfa;
 }
@@ -148,7 +150,7 @@ NFA* NFABuilder::buildNFAFromPostfixExpression(vector<string> postfix){
             if(from.size()!=1 || to.size()!=1 ) cout<<"RANGE OPERATOR IS DONE FOR MORE THAN ONE CHAR"<<endl;
             accumulatedNFA.push(NFA::formNFAForRangeOperator(from[0],to[0]));
         }
-        else if(this->regularDefinitionNFAs.count(word)) accumulatedNFA.push(regularDefinitionNFAs[word]);
+        else if(this->regularDefinitionNFAs.count(word)) accumulatedNFA.push(regularDefinitionNFAs[word]->clone());
         else accumulatedNFA.push(createNFAFromWord(word));
     }
     if(accumulatedNFA.size()!=1) cout<<"END ACCUMULATION WITH "<<accumulatedNFA.size()<<" NFAs IN THE STACK"<<endl;

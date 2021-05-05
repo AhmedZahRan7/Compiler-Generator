@@ -34,3 +34,10 @@ void State::setAcceptingTokenKey(TokenKey* tokenKey){
 TokenKey* State::getAcceptingTokenKey(){
     return this->getIsAcceptingState() ? this->acceptingTokenKey : NULL;
 }
+
+State* State::clone(){
+    State* state = new State();
+    if(this->isAcceptingState) state->markAsAcceptingState();
+    state->setAcceptingTokenKey(this->acceptingTokenKey);
+    return state;
+}

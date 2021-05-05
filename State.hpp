@@ -16,5 +16,6 @@ public:
     TokenKey* getAcceptingTokenKey();
     void setAcceptingTokenKey(TokenKey* tokenKey);
     string getID();
+    State* clone();
 };
 #endif

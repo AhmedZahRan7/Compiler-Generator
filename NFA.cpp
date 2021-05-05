@@ -1,14 +1,11 @@
 #include "NFA.hpp"
 NFA::NFA(){
-    addState(this->startState = new State());
-    addState(this->finalState = new State());
-    addTransation(this->startState,this->finalState,EPSILON_TRANSATION);
+
 }
 NFA::NFA(string input){
     addState(this->startState = new State());
     addState(this->finalState = new State());
     addTransation(this->startState,this->finalState,input);
-    this->finalState->markAsAcceptingState();
 }
 void NFA::addState(State* state){
     this->states.insert(state);
@@ -97,8 +94,10 @@ NFA* NFA::convertIntoPositiveClosure(NFA* oldNfa){
     NFA * nfa = new NFA();
     nfa->setStartState(new State());
     nfa->setFinalState(new State());
-    nfa->getFinalState()->markAsAcceptingState();
     State* newFinal = new State();
+    nfa->addState(nfa->startState);
+    nfa->addState(nfa->finalState);
+    nfa->addState(newFinal);
     for(State* state : oldNfa->states){
         if(state != oldNfa->finalState) nfa->addState(state);
         else nfa->addState(newFinal);
@@ -131,7 +130,6 @@ NFA* NFA::formNFAForRangeOperator(char from,char to){
 string NFA::toString(){
     stringstream informations;
     informations << "Start state is "+this->startState->getID()+"\n";
-    if(finalState!=NULL)informations << "Final state is "+this->finalState->getID()+"\n";
     for(auto p : this->transationsFromState){
         informations<<p.first->getID()<<"  \n";
         for(Transation* trans : p.second) {
@@ -143,3 +141,16 @@ string NFA::toString(){
     return informations.str();
 }
 map<State*,set<Transation*>> NFA::getTransitionTable() {return this->transationsFromState;}
+NFA* NFA::clone(){
+    NFA* nfa = new NFA();
+    unordered_map<State*,State*> maping;
+    for(State* state : this->states) maping[state] = state->clone();
+    for(State* state : this->states){
+        nfa->addState(maping[state]);
+        for(Transation* trans : this->getTransationFromState(state))
+            nfa->addTransation(maping[trans->from],maping[trans->to],trans->condition);
+    }
+    nfa->setStartState(maping[this->startState]);
+    nfa->setFinalState(maping[this->finalState]);
+    return nfa;
+}

@@ -62,6 +62,7 @@ public:
     */
     string toString();
 
+    NFA* clone();
     void addState(State* state);
     void addTransation(State* from,State* to,string cond);
     void addTransation(State* from,Transation* trans);

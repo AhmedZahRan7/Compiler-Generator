@@ -63,7 +63,7 @@ int main() {
     
     cout << nfa->toString();
     // auto nfa = createLectureExample();
-    auto dfa = new DFA(nfa, "test_program.txt");
+    // auto dfa = new DFA(nfa, "test_program.txt");
 
     return 0;
 }

@@ -1,4 +1,5 @@
 {boolean int float}
 addop:a|b
 temp = t
-tempEX : t* 
+temp2 = temp temp*
+tempEX : x temp2
