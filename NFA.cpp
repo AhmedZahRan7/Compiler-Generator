@@ -141,6 +141,13 @@ string NFA::toString(){
     return informations.str();
 }
 map<State*,set<Transation*>> NFA::getTransitionTable() {return this->transationsFromState;}
+set<string> NFA::getInputSymbols() {
+    set<string> inputSymbols;
+    for(auto p : this->transationsFromState)
+        for(Transation* trans : p.second)
+            if(trans->condition != EPSILON_TRANSATION) inputSymbols.insert(trans->condition);
+    return inputSymbols;
+}
 NFA* NFA::clone(){
     NFA* nfa = new NFA();
     unordered_map<State*,State*> maping;

@@ -4,22 +4,24 @@
 #include "Token.hpp"
 
 /**
- * @brief Deterministic finite state machine constructed from an NFA, 
- * then minimized and used in lexical analyzer. 
+ * @brief Deterministic finite state machine constructed from an NFA,
+ * then minimized and used in lexical analyzer.
  */
 class DFA{
 private:
     State* startState;
-    map<State*,set<Transation*>> transistionsTable;
+    map<State*, set<Transation*>> Ntransitions;
+    map<State*, set<Transation*>> Dtransitions;
     /**
      * @brief set of nfa states belong to one group are mapped to a new state which
-     * will be used instead of the set. 
+     * will be used instead of the set.
      */
     map<set<State*>, State*> DStates;
     vector<string> allWords;
-    unordered_set<string> inputSymbols;
+    set<string> inputSymbols;
     vector<Token*> Tokens;
     vector<Token*> SymbolTable;
+    bool switchToDtran;
 
     /**
      * @brief Build the dfa using subset construction algorithm.
@@ -41,8 +43,8 @@ public:
     /**
      * @brief Construct a new DFA object from a given NFA machine
      * using the Subset construction algorithm.
-     * 
-     * @param src_prog_path path to a txt file of a source program that 
+     *
+     * @param src_prog_path path to a txt file of a source program that
      * wil be parsed and converted to tokens.
      */
     DFA(NFA* nfa, string src_prog_path);
@@ -51,5 +53,6 @@ public:
     void simulate(vector<string> words);
     vector<Token*> getTokens();
     vector<Token*> getSymbolTable();
+    string toString();
 };
 #endif

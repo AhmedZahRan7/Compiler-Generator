@@ -22,13 +22,13 @@ private:
 public:
 
     NFA();
-    
+
     /**
         NFA consractor
         @param input the basic transation.
         for example if input is "a" then we build the following NFA,
         (Start) --a--> ((finalState))
-        *double parenthesis indicates an Accepting state 
+        *double parenthesis indicates an Accepting state
     */
     NFA(string input);
 
@@ -49,7 +49,7 @@ public:
 
     /**
         Kleene Closure of the current NFA
-    */    
+    */
     static NFA* convertIntoKleeneClosure(NFA* nfa);
      /**
         Positive Closure of the current NFA
@@ -58,7 +58,7 @@ public:
 
     static NFA* formNFAForRangeOperator(char from,char to);
     /**
-       get NFA parameters as a string for debuging purposes 
+       get NFA parameters as a string for debuging purposes
     */
     string toString();
 
@@ -72,7 +72,7 @@ public:
     void setStartState(State* state);
     State* getStartState();
     State* getFinalState();
-    vector<string>* getInputSymbols();
+    set<string> getInputSymbols();
     map<State*,set<Transation*>> getTransitionTable();
 };
 #endif
