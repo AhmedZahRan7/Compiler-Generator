@@ -6,10 +6,6 @@ State::State(){
     markAsNotAcceptingState();
 }
 
-State::State(string a) {
-    this->id = a;
-    markAsNotAcceptingState();
-}
 
 bool State::getIsAcceptingState(){
     return this->isAcceptingState;
@@ -37,7 +33,9 @@ TokenKey* State::getAcceptingTokenKey(){
 
 State* State::clone(){
     State* state = new State();
-    if(this->isAcceptingState) state->markAsAcceptingState();
-    state->setAcceptingTokenKey(this->acceptingTokenKey);
+    if(this->isAcceptingState) {
+        state->markAsAcceptingState();
+        state->setAcceptingTokenKey(this->acceptingTokenKey);
+    }
     return state;
 }
