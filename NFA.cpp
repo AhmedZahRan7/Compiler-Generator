@@ -32,58 +32,57 @@ State* NFA::getStartState() {
     return this->startState;
 }
 State* NFA::getFinalState() {
-
     return this->finalState;
 }
 NFA* NFA::concatenate(NFA* firstNFA,NFA* secondNFA){
-    NFA * nfa = new NFA();
-    nfa->setStartState(firstNFA->getStartState());
-    nfa->setFinalState(secondNFA->getFinalState());
-    for(State* state : firstNFA->states){
-        if(state != firstNFA->finalState) nfa->addState(state);
-        for(Transation* trans : firstNFA->getTransationFromState(state)){
-            if(trans->to != firstNFA->finalState) nfa->addTransation(state,trans);
-            else nfa->addTransation(state,secondNFA->startState,trans->condition);
+    NFA* nfa1 = firstNFA->clone();
+    NFA* nfa2 = secondNFA->clone();
+    nfa1->states.erase(nfa1->finalState);
+    for(State* state:nfa1->states){
+        for(Transation* t : nfa1->getTransationFromState(state)){
+            if(t->to == nfa1->getFinalState()) t->to = nfa2->startState;
         }
     }
-    for(State* state : secondNFA->states){
-        nfa->addState(state);
-        for(Transation* trans : secondNFA->getTransationFromState(state)) nfa->addTransation(state,trans);
+    for(State* state : nfa2->states){
+        nfa1->addState(state);
+        for(Transation* trans : nfa2->getTransationFromState(state)) nfa1->addTransation(state,trans);
     }
-    return nfa;
+    nfa1->setFinalState(nfa2->finalState);
+    return nfa1;
+    // NFA * nfa = new NFA();
+    // nfa->setStartState(firstNFA->getStartState());
+    // nfa->setFinalState(secondNFA->getFinalState());
+    // for(State* state : firstNFA->states){
+    //     if(state != firstNFA->finalState) nfa->addState(state);
+    //     for(Transation* trans : firstNFA->getTransationFromState(state)){
+    //         if(trans->to != firstNFA->finalState) nfa->addTransation(state,trans);
+    //         else nfa->addTransation(state,secondNFA->startState,trans->condition);
+    //     }
+    // }
+    // for(State* state : secondNFA->states){
+    //     nfa->addState(state);
+    //     for(Transation* trans : secondNFA->getTransationFromState(state)) nfa->addTransation(state,trans);
+    // }
+    // return nfa;
 }
 NFA* NFA::unionWith(NFA* firstNFA,NFA* secondNFA){
-    NFA * nfa = new NFA();
-    nfa->setStartState(new State());
-    nfa->setFinalState(new State());
-    nfa->addState(nfa->startState);
-    nfa->addState(nfa->finalState);
-    nfa->getFinalState()->markAsAcceptingState();
-
-    State* firstNFAFinal = new State();
-    State* secondNFAFinal = new State();
-
-    for(State* state : firstNFA->states){
-        if(state != firstNFA->finalState) nfa->addState(state);
-        else nfa->addState(firstNFAFinal);
-        for(Transation* trans : firstNFA->getTransationFromState(state)){
-            if(trans->to != firstNFA->finalState) nfa->addTransation(state,trans);
-            else nfa->addTransation(state,firstNFAFinal,trans->condition);
-        }
+    NFA* nfa1 = firstNFA->clone();
+    NFA* nfa2 = secondNFA->clone();
+    for(State* state : nfa2->states){
+        nfa1->addState(state);
+        for(Transation* trans : nfa2->getTransationFromState(state)) nfa1->addTransation(state,trans);
     }
-    for(State* state : secondNFA->states){
-        if(state != secondNFA->finalState) nfa->addState(state);
-        else nfa->addState(secondNFAFinal);
-        for(Transation* trans : secondNFA->getTransationFromState(state)){
-            if(trans->to != secondNFA->finalState) nfa->addTransation(state,trans);
-            else nfa->addTransation(state,secondNFAFinal,trans->condition);
-        }
-    }
-    nfa->addTransation(nfa->startState,firstNFA->startState,EPSILON_TRANSATION);
-    nfa->addTransation(nfa->startState,secondNFA->startState,EPSILON_TRANSATION);
-    nfa->addTransation(firstNFAFinal,nfa->finalState,EPSILON_TRANSATION);
-    nfa->addTransation(secondNFAFinal,nfa->finalState,EPSILON_TRANSATION);
-    return nfa;
+    State* newStart = new State();
+    State* newFinal = new State();
+    nfa1->addTransation(newStart,nfa1->startState,EPSILON_TRANSATION);
+    nfa1->addTransation(newStart,nfa2->startState,EPSILON_TRANSATION);
+    nfa1->addTransation(nfa1->finalState,newFinal,EPSILON_TRANSATION);
+    nfa1->addTransation(nfa2->finalState,newFinal,EPSILON_TRANSATION);
+    nfa1->setStartState(newStart);
+    nfa1->setFinalState(newFinal);
+    nfa1->addState(newStart);
+    nfa1->addState(newFinal);
+    return nfa1;
 }
 NFA* NFA::convertIntoKleeneClosure(NFA* oldNfa){
     NFA* nfa = convertIntoPositiveClosure(oldNfa);
@@ -91,31 +90,42 @@ NFA* NFA::convertIntoKleeneClosure(NFA* oldNfa){
     return nfa;
 }
 NFA* NFA::convertIntoPositiveClosure(NFA* oldNfa){
-    NFA * nfa = new NFA();
-    nfa->setStartState(new State());
-    nfa->setFinalState(new State());
+    NFA * nfa = oldNfa->clone();
+    State* newStart = new State();
     State* newFinal = new State();
-    nfa->addState(nfa->startState);
-    nfa->addState(nfa->finalState);
+    nfa->addState(newStart);
     nfa->addState(newFinal);
-    for(State* state : oldNfa->states){
-        if(state != oldNfa->finalState) nfa->addState(state);
-        else nfa->addState(newFinal);
-        for(Transation* trans : oldNfa->getTransationFromState(state)){
-            if(trans->to != oldNfa->finalState) nfa->addTransation(state,trans);
-            else nfa->addTransation(state,newFinal,trans->condition);
-        }
-    }
-    nfa->addTransation(newFinal,oldNfa->startState,EPSILON_TRANSATION);
-    nfa->addTransation(newFinal,nfa->finalState,EPSILON_TRANSATION);
-    nfa->addTransation(nfa->startState,oldNfa->startState,EPSILON_TRANSATION);
+    nfa->addTransation(nfa->finalState,nfa->startState,EPSILON_TRANSATION);
+    nfa->addTransation(newStart,nfa->startState,EPSILON_TRANSATION);
+    nfa->addTransation(nfa->finalState,newFinal,EPSILON_TRANSATION);
+    nfa->setStartState(newStart);
+    nfa->setFinalState(newFinal);
     return nfa;
+    // nfa->setStartState(new State());
+    // nfa->setFinalState(new State());
+    // State* newFinal = new State();
+    // nfa->addState(nfa->startState);
+    // nfa->addState(nfa->finalState);
+    // nfa->addState(newFinal);
+    // for(State* state : oldNfa->states){
+    //     if(state != oldNfa->finalState) nfa->addState(state);
+    //     else nfa->addState(newFinal);
+    //     for(Transation* trans : oldNfa->getTransationFromState(state)){
+    //         if(trans->to != oldNfa->finalState) nfa->addTransation(state,trans);
+    //         else nfa->addTransation(state,newFinal,trans->condition);
+    //     }
+    // }
+    // nfa->addTransation(newFinal,oldNfa->startState,EPSILON_TRANSATION);
+    // nfa->addTransation(newFinal,nfa->finalState,EPSILON_TRANSATION);
+    // nfa->addTransation(nfa->startState,oldNfa->startState,EPSILON_TRANSATION);
+    // return nfa;
 }
 NFA* NFA::formNFAForRangeOperator(char from,char to){
     NFA* nfa = new NFA();
     nfa->setStartState(new State());
     nfa->setFinalState(new State());
-    nfa->getFinalState()->markAsAcceptingState();
+    nfa->addState(nfa->getStartState());
+    nfa->addState(nfa->getFinalState());
     for(char c=from;c<=to;c++){
         NFA* subNFA = new NFA(string(1,c));
         nfa->addTransation(nfa->startState,subNFA->startState,EPSILON_TRANSATION);
@@ -130,9 +140,9 @@ NFA* NFA::formNFAForRangeOperator(char from,char to){
 string NFA::toString(){
     stringstream informations;
     informations << "Start state is "+this->startState->getID()+"\n";
-    for(auto p : this->transationsFromState){
-        informations<<p.first->getID()<<"  \n";
-        for(Transation* trans : p.second) {
+    for(State* state : this->states){
+        informations<<state->getID()<<"  \n";
+        for(Transation* trans : getTransationFromState(state)) {
             informations<<"--"<<trans->condition<<"-->"<<trans->to->getID();
             if(trans->to->getIsAcceptingState()) informations<<" ("<<trans->to->getAcceptingTokenKey()->getKey()<<")";
             informations<<"  \n";
