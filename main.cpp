@@ -61,9 +61,10 @@ int main() {
     NFABuilder* builder = new NFABuilder("lexical_rules.txt");
     auto nfa = builder->getNFA();
     
-    cout << nfa->toString();
+    // cout << nfa->toString();
     // auto nfa = createLectureExample();
-    // auto dfa = new DFA(nfa, "test_program.txt");
+    auto dfa = new DFA(nfa, "test_program.txt");
+    dfa->simulate();
 
     return 0;
 }

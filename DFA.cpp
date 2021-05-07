@@ -1,10 +1,9 @@
 #include "DFA.hpp"
 
 DFA::DFA(NFA* nfa, string src_prog_path) {
-    setInputSymbols(src_prog_path);
+    parseSrcProgram(src_prog_path);
     build(nfa);
     minimize();
-    parseSrcProgram(src_prog_path);
 }
 
 set<State*> getUnmarked(map<set<State*>, bool>& markedStates) {
@@ -62,82 +61,6 @@ void DFA::build(NFA* nfa) {
     }
 }
 
-set<set<State*>> DFA::partition(set<set<State*>>& groups, string x) {
-    set<set<State*>> newGroups;
-    for (set<State*> T : groups) {
-        // cout << "Current Group: "; printStates(T);
-        unordered_map<State*, bool> markedStates;
-        for (State* s : T) {
-            markedStates[s] = false;
-        }
-
-        set<State*>::iterator it;
-        for (it = T.begin(); it != T.end(); ++it) {
-            if (markedStates[*it]) continue;
-            set<State*> subgroup;
-            subgroup.insert(*it);
-            markedStates[*it] = true;
-            set<State*>::iterator jt = next(it, 1);
-            for (; jt != T.end(); ++jt) {
-                if (markedStates[*jt]) continue;
-                if (goToSameGroup(groups, *it, *jt, x)) {
-                    subgroup.insert(*jt);
-                    markedStates[*jt] = true;
-                }
-            }
-            // printStates(subgroup);
-            newGroups.insert(subgroup);
-        }
-    }
-    return newGroups;
-}
-
-bool DFA::goToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s) {
-    set<State*>::iterator it = move(a, s).begin();
-    State* nextOf_a= *it;
-    it = move(b, s).begin();
-    State* nextOf_b= *it;
-    
-    for (set<State*> g : groups) {
-        if (g.find(nextOf_a) != g.end() && g.find(nextOf_b) != g.end()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void DFA::minimize(){
-    set<set<State*>> groups;
-    unordered_map<TokenKey*, set<State*>> subgroups;
-    TokenKey* nonAccepting = new TokenKey("NonAccepting");
-    for (auto s : DStates) {
-        State* curr = s.second;
-        if (curr->getIsAcceptingState() == false) {
-            subgroups[nonAccepting].insert(curr);
-            // cout << "Not accepting set : " << curr->getID() << " -> "; printStates(s.first);
-        } else {
-            subgroups[curr->getAcceptingTokenKey()].insert(curr);
-            // cout << curr->getAcceptingTokenKey()->getKey() << " set : " << curr->getID() << " -> "; printStates(s.first);
-        }
-    }
-    for (auto entry : subgroups) {
-        groups.insert(entry.second);
-        // cout << "Group "; printStates(entry.second); 
-    }
-    
-    bool NotMinimized = true;
-    while (NotMinimized){
-        set<set<State*>> newGroups(groups.begin(), groups.end());
-        for (string x : inputSymbols) {
-            newGroups = partition(newGroups, x);
-        }
-        if (newGroups == groups) {
-            NotMinimized = false;
-        }
-        groups = newGroups;
-    }
-}
-
 set<State*> DFA::epsClosure(State* s) {
     set<State*> nextStates = {s};
     stack<State*> stack;
@@ -188,69 +111,127 @@ set<State*> DFA::move(set<State*> states, string a) {
     return nextStates;
 }
 
-vector<string> DFA::tokenize(string s, string del = " ") {
-    string buffer;
-    vector<string> tokens;
-    for (char c : s) {
-        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
-            buffer += c;
+void DFA::minimize(){
+    set<set<State*>> groups;
+    unordered_map<TokenKey*, set<State*>> subgroups;
+    TokenKey* nonAccepting = new TokenKey("NonAccepting");
+    for (auto s : DStates) {
+        State* curr = s.second;
+        if (curr->getIsAcceptingState() == false) {
+            subgroups[nonAccepting].insert(curr);
+            // cout << "Not accepting set : " << curr->getID() << " -> "; printStates(s.first);
         } else {
-            tokens.emplace_back(buffer);
-            buffer = "";
-            tokens.emplace_back(string(1, c));
+            subgroups[curr->getAcceptingTokenKey()].insert(curr);
+            // cout << curr->getAcceptingTokenKey()->getKey() << " set : " << curr->getID() << " -> "; printStates(s.first);
         }
     }
-    return tokens;
-}
-
-void DFA::buildSymbolTable() {
-    for (Token* t : AcceptedTokens) {
-        if (t->getKey() == new TokenKey("id") || t->getKey() == new TokenKey("identifier")) {
-            SymbolTable.emplace_back(t);
+    for (auto entry : subgroups) {
+        groups.insert(entry.second);
+        // cout << "Group "; printStates(entry.second); 
+    }
+    
+    bool NotMinimized = true;
+    while (NotMinimized){
+        set<set<State*>> newGroups(groups.begin(), groups.end());
+        for (string x : inputSymbols) {
+            newGroups = partition(newGroups, x);
         }
+        if (newGroups == groups) {
+            NotMinimized = false;
+        }
+        groups = newGroups;
     }
 }
 
-void DFA::parseSrcProgram(string path) {
-    this->file.open(path,ios::in);
-    if (!this->file.is_open()) cout << "File not exist";
-    string line;
-    while (getline(this->file,line)) {
-        vector<string> tokens = tokenize(line);
-        for (string x : tokens) {
-            // cout << "Token: " << x << endl;
-            State* s = simulate(x);
-            if (s->getIsAcceptingState()) {
-                AcceptedTokens.push_back(new Token(s->getAcceptingTokenKey(), new TokenValue(x)));
+set<set<State*>> DFA::partition(set<set<State*>>& groups, string x) {
+    set<set<State*>> newGroups;
+    for (set<State*> T : groups) {
+        // cout << "Current Group: "; printStates(T);
+        unordered_map<State*, bool> markedStates;
+        for (State* s : T) {
+            markedStates[s] = false;
+        }
+
+        set<State*>::iterator it;
+        for (it = T.begin(); it != T.end(); ++it) {
+            if (markedStates[*it]) continue;
+            set<State*> subgroup;
+            subgroup.insert(*it);
+            markedStates[*it] = true;
+            set<State*>::iterator jt = next(it, 1);
+            for (; jt != T.end(); ++jt) {
+                if (markedStates[*jt]) continue;
+                if (goToSameGroup(groups, *it, *jt, x)) {
+                    subgroup.insert(*jt);
+                    markedStates[*jt] = true;
+                }
             }
+            // printStates(subgroup);
+            newGroups.insert(subgroup);
         }
     }
-
-    // Printing Accepted Tokens for debugging
-    for (auto t : AcceptedTokens) {
-        cout << '{' << t->getKey()->getKey() << ", " << t->getValue()->getValue() << "}\n";
-    }
-
-    buildSymbolTable();
-    this->file.close();
+    return newGroups;
 }
 
-void DFA::setInputSymbols(string path) {
-    this->file.open(path,ios::in);
-    if (!this->file.is_open()) cout << "File not exist";
-    string line;
-    while (getline(this->file,line)) {
-        for (char c : line) {
-            inputSymbols.insert(string(1, c));
+bool DFA::goToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s) {
+    set<State*>::iterator it = move(a, s).begin();
+    State* nextOf_a= *it;
+    it = move(b, s).begin();
+    State* nextOf_b= *it;
+    
+    for (set<State*> g : groups) {
+        if (g.find(nextOf_a) != g.end() && g.find(nextOf_b) != g.end()) {
+            return true;
         }
     }
-    this->file.close();
+    return false;
 }
 
-State* DFA::simulate(string x) {
+void DFA::recoveryRoutine(string word) {
     State* s = this->startState;
     set<State*> curr_set;
-    for (char c : x) {
+    string buffer;
+    pair<State*, int> lastAccept;
+    bool wordFinished = false;
+    while (!wordFinished) {
+        for (int i = 0; i < word.size() && !word.empty(); ++i) {
+            buffer += word[i];
+            curr_set = move(s, string(1, word[i]));
+            if (curr_set.empty()) {
+                if (lastAccept.second == 0) {    // No accepting state is found til now
+                    cout << word << " is not identified so neglected.\n";
+                    return; // If input prefix doesn't move to any state then the rest of the word neglected
+                } else {
+                    buffer = "";
+                    addToken(s, word.substr(0, lastAccept.second + 1));
+                    word.erase(0, lastAccept.second + 1);
+                    lastAccept = {};
+                    i = -1; // Will be incremented in the for loop      
+                }
+                s = this->startState;
+            } else {
+                s = *curr_set.begin();
+                if (s->getIsAcceptingState()) {
+                    lastAccept = {s, i};
+                }
+            }
+        }
+        if (lastAccept.second == 0) {
+            if (!buffer.empty()) cout << buffer << " is not identified so neglected.\n";
+            wordFinished = true;
+        } else {
+            buffer = "";
+            addToken(s, word.substr(0, lastAccept.second + 1));
+            word.erase(0, lastAccept.second + 1);
+            lastAccept = {};
+        }
+    }
+}
+
+State* DFA::simulate(string word) {
+    State* s = this->startState;
+    set<State*> curr_set;
+    for (char c : word) {
         curr_set = move(s, string(1, c));
         if (!curr_set.empty()) s = *curr_set.begin();
         else return new State();
@@ -258,11 +239,58 @@ State* DFA::simulate(string x) {
     return s;
 }
 
-// Print T states ex: (A, B, C, D )
-void DFA::printStates(set<State*> T) {
-    cout << '(';
-    for (auto s : T) {
-        cout << s->getID() << " ";
+void DFA::simulate(vector<string> words) {
+    for (string word : words) {
+        State* s = simulate(word);
+        if (s->getIsAcceptingState()) {
+            addToken(s, word);
+        } else {
+            recoveryRoutine(word);
+        }
     }
-    cout << ")\n";
+}
+
+void DFA::simulate() {simulate(this->allWords);}
+
+vector<Token*> DFA::getTokens() {return this->Tokens;}
+
+vector<Token*> DFA::getSymbolTable() {return this->SymbolTable;}
+
+void DFA::addToken(State* s, string word) {
+    auto t = new Token(s->getAcceptingTokenKey(), new TokenValue(word));
+    this->Tokens.push_back(t);
+    if (s->getAcceptingTokenKey()->getKey() == "id") {
+        SymbolTable.push_back(t);
+    }
+    cout << '{' << t->getKey()->getKey() << ", " << t->getValue()->getValue() << "}\n";
+}
+
+void DFA::parseSrcProgram(string path) {
+    fstream file;
+    file.open(path,ios::in);
+    if (!file.is_open()) {
+        cout << "File not exist";
+    }
+
+    string line;
+    while (getline(file,line)) {
+        vector<string> words = split(line);
+        for (string word : words) {
+            for (char c : word) {
+                inputSymbols.insert(string(1, c));
+            }
+        }
+        this->allWords.insert(allWords.end(), words.begin(), words.end());
+    }
+    file.close();
+}
+
+string DFA::printStates(set<State*> T) {
+    stringstream out;
+    out << '(';
+    for (auto s : T) {
+        out << s->getID() << " ";
+    }
+    out << ")\n";
+    return out.str();
 }
