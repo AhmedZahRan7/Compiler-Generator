@@ -17,10 +17,7 @@ private:
      * will be used instead of the set.
      */
     map<set<State*>, State*> DStates;
-    vector<string> allWords;
     set<string> inputSymbols;
-    vector<Token*> Tokens;
-    vector<Token*> SymbolTable;
     bool switchToDtran;
 
     /**
@@ -34,10 +31,6 @@ private:
     void minimize();
     set<set<State*>> partition(set<set<State*>>& groups, string x);
     bool goToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s);
-    State* simulate(string word);
-    void addToken(State* s, string word);
-    void recoveryRoutine(string word);
-    void parseSrcProgram(string path);
     string printStates(set<State*> T);
 public:
     /**
@@ -47,12 +40,10 @@ public:
      * @param src_prog_path path to a txt file of a source program that
      * wil be parsed and converted to tokens.
      */
-    DFA(NFA* nfa, string src_prog_path);
-
-    void simulate();
-    void simulate(vector<string> words);
-    vector<Token*> getTokens();
-    vector<Token*> getSymbolTable();
+    DFA(NFA* nfa);
+    map<State*, set<Transation*>> getTransitions();
+    set<State*> getStates();
+    State* getStartState();
     string toString();
 };
 #endif

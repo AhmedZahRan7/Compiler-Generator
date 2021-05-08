@@ -1,16 +1,18 @@
 CC = g++
 CFLAGS = -Wall -g
 
-all :=main.cpp 
-all +=State.cpp
-all +=Transation.cpp
+all :=main.cpp
+all +=DFA.cpp
+all +=Lexical_Analyzer_Generator.cpp
+all +=Lexical_Analyzer.cpp
 all +=NFA.cpp
-all +=utilities.cpp
+all +=NFABuilder.cpp
+all +=State.cpp
 all +=Token.cpp
 all +=TokenKey.cpp
 all +=TokenValue.cpp
-all +=NFABuilder.cpp
-all +=DFA.cpp
+all +=Transation.cpp
+all +=utilities.cpp
 outName = run
 
 build: clean

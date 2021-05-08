@@ -46,7 +46,7 @@ void NFABuilder::punctuationParser(string& line){
 void NFABuilder::regularDefinitionParser(string& line){
     string name;
     string expression;
-    int i=0;
+    unsigned int i=0;
     while (i<line.size()){
         if(line[i]=='=') break;
         name+=line[i];
@@ -64,7 +64,7 @@ void NFABuilder::regularDefinitionParser(string& line){
 void NFABuilder::regularExpressionParser(string& line){
     string name;
     string expression;
-    int i=0;
+    unsigned int i=0;
     while (i<line.size()){
         if(line[i]==':') break;
         name+=line[i];
@@ -107,8 +107,8 @@ NFA* NFABuilder::createNFAFromWord(string word){
     if(word == "\\L") return new NFA(EPSILON_TRANSATION);
     word.erase(remove(word.begin(), word.end(), '\\'), word.end());
     NFA* nfa = new NFA(string(1,word[0]));
-    for(int i=1;i<word.size();i++){
-        char c = word[i]; 
+    for(unsigned int i=1;i<word.size();i++){
+        char c = word[i];
         nfa = NFA::concatenate(nfa,new NFA(string(1,c)));
     }
     return nfa;
@@ -116,7 +116,7 @@ NFA* NFABuilder::createNFAFromWord(string word){
 
 NFA* NFABuilder::buildNFAFromPostfixExpression(vector<string> postfix){
     stack<NFA*> accumulatedNFA;
-    for(int i=0;i<postfix.size();i++){
+    for(unsigned int i=0;i<postfix.size();i++){
         string word = postfix[i];
         if(word == KLEENE_CLOSURE_OPERATOR){
             NFA* nfa = NFA::convertIntoKleeneClosure(accumulatedNFA.top());

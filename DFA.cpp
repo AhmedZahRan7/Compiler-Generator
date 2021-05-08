@@ -1,7 +1,6 @@
 #include "DFA.hpp"
 
-DFA::DFA(NFA* nfa, string src_prog_path) {
-    parseSrcProgram(src_prog_path);
+DFA::DFA(NFA* nfa) {
     this->switchToDtran = false;
     build(nfa);
     this->switchToDtran = true;
@@ -149,7 +148,7 @@ void DFA::minimize(){
 set<set<State*>> DFA::partition(set<set<State*>>& groups, string x) {
     set<set<State*>> newGroups;
     for (set<State*> T : groups) {
-        // cout << "Current Group: "; printStates(T);
+        // cout << "Current Group: " << printStates(T);
         unordered_map<State*, bool> markedStates;
         for (State* s : T) {
             markedStates[s] = false;
@@ -190,98 +189,15 @@ bool DFA::goToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s) 
     return false;
 }
 
-void DFA::recoveryRoutine(string word) {
-    State* s = this->startState;
-    set<State*> curr_set;
-    string buffer;
-    pair<State*, int> lastAccept;
-    bool wordFinished = false;
-    while (!wordFinished) {
-        for (int i = 0; i < word.size() && !word.empty(); ++i) {
-            buffer += word[i];
-            curr_set = move(s, string(1, word[i]));
-            if (curr_set.empty()) {
-                if (lastAccept.second == 0) {    // No accepting state is found til now
-                    cout << word << " is not identified so neglected.\n";
-                    return; // If input prefix doesn't move to any state then the rest of the word neglected
-                } else {
-                    buffer = "";
-                    addToken(s, word.substr(0, lastAccept.second + 1));
-                    word.erase(0, lastAccept.second + 1);
-                    lastAccept = {};
-                    i = -1; // Will be incremented in the for loop
-                }
-                s = this->startState;
-            } else {
-                s = *curr_set.begin();
-                if (s->getIsAcceptingState()) {
-                    lastAccept = {s, i};
-                }
-            }
-        }
-        if (lastAccept.second == 0) {
-            if (!buffer.empty()) cout << buffer << " is not identified so neglected.\n";
-            wordFinished = true;
-        } else {
-            buffer = "";
-            addToken(s, word.substr(0, lastAccept.second + 1));
-            word.erase(0, lastAccept.second + 1);
-            lastAccept = {};
-        }
-    }
+map<State*, set<Transation*>> DFA::getTransitions() {return this->Dtransitions;}
+
+set<State*> DFA::getStates() {
+    set<State*> T;
+    for (auto entry : DStates) T.insert(entry.second);
+    return T;
 }
 
-State* DFA::simulate(string word) {
-    State* s = this->startState;
-    set<State*> curr_set;
-    for (char c : word) {
-        curr_set = move(s, string(1, c));
-        if (!curr_set.empty()) s = *curr_set.begin();
-        else return new State();
-    }
-    return s;
-}
-
-void DFA::simulate(vector<string> words) {
-    for (string word : words) {
-        State* s = simulate(word);
-        if (s->getIsAcceptingState()) {
-            addToken(s, word);
-        } else {
-            recoveryRoutine(word);
-        }
-    }
-}
-
-void DFA::simulate() {simulate(this->allWords);}
-
-vector<Token*> DFA::getTokens() {return this->Tokens;}
-
-vector<Token*> DFA::getSymbolTable() {return this->SymbolTable;}
-
-void DFA::addToken(State* s, string word) {
-    auto t = new Token(s->getAcceptingTokenKey(), new TokenValue(word));
-    this->Tokens.push_back(t);
-    if (s->getAcceptingTokenKey()->getKey() == "id") {
-        SymbolTable.push_back(t);
-    }
-    cout << '{' << t->getKey()->getKey() << ", " << t->getValue()->getValue() << "}\n";
-}
-
-void DFA::parseSrcProgram(string path) {
-    fstream file;
-    file.open(path,ios::in);
-    if (!file.is_open()) {
-        cout << "File not exist";
-    }
-
-    string line;
-    while (getline(file,line)) {
-        vector<string> words = split(line);
-        this->allWords.insert(allWords.end(), words.begin(), words.end());
-    }
-    file.close();
-}
+State* DFA::getStartState() {return this->startState;}
 
 string DFA::printStates(set<State*> T) {
     stringstream out;

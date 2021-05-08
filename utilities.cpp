@@ -26,7 +26,7 @@ void removeSpaces(string &str){
     string str2;
     for(char c:str){
         if(c==' ' && str2.back()==' ') continue;
-        str2 += c; 
+        str2 += c;
     }
     str = trim(str2);
 }
@@ -47,8 +47,8 @@ vector<string> split(string& str){
  * concatination
  * |
  * (
- * 
- * l(l|d)* --> l l d | *  
+ *
+ * l(l|d)* --> l l d | *
  * @param expression infix representation of regular definations or regular expressions
  * @return string postfix representation of regular definations or regular expressions
  */
@@ -56,8 +56,8 @@ vector<string> infixToPostfix(string expression){
     vector<string> postFix;
     stack<string> operators;
     vector<string> splittedExpression = spiltInfixExpression(expression);
-    int i=0;
-    int lastI=0;
+    unsigned int i=0;
+    unsigned int lastI=0;
     for(i=0;i<splittedExpression.size();i++){
         string word = splittedExpression[i];
         if(i>0 && i>lastI &&isConcatenation(splittedExpression[i-1],splittedExpression[i])){
@@ -95,8 +95,8 @@ vector<string> infixToPostfix(string expression){
 /**
  * @brief This function handels the problem of the absence of the concatination operator
  * as each regex operation is represented with an operator except the concationation.
- * 
- * @param lastWord the last word inserted into the postfix expression 
+ *
+ * @param lastWord the last word inserted into the postfix expression
  * @param currentWord the word to be inserted into the postfix expression
  * @return true if we need to consider concatination operator between these two words
  * @return false if not
@@ -107,7 +107,7 @@ bool isConcatenation(string lastWord, string currentWord){
 }
 vector<string> spiltInfixExpression(string expression){
     string expressionWithSpaces = "";
-    for(int i=0 ;i<expression.size();i++){
+    for(unsigned int i=0 ;i<expression.size();i++){
         string s = "";
         s += expression[i];
         if(isOperator(s)&&(i==0 || expression[i-1]!='\\')) expressionWithSpaces += ' ';
