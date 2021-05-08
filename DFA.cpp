@@ -33,8 +33,8 @@ void DFA::build(NFA* nfa) {
     this->inputSymbols = nfa->getInputSymbols();
 
     set<State*> T = epsClosure(nfa->getStartState());
-    DStates[T] = new State();
-    this->startState = DStates[T];
+    groupedStates[T] = new State();
+    this->startState = groupedStates[T];
 
     set<set<State*>> statesBeforeMapping;
     statesBeforeMapping.insert(T);
@@ -45,7 +45,7 @@ void DFA::build(NFA* nfa) {
     while (!T.empty()) {
         // cout << "T: " << printStates(T);
         markedStates[T] = true;
-        modifyAcceptingState(DStates[T], T);
+        modifyAcceptingState(groupedStates[T], T);
         for (string a : inputSymbols) {
             set<State*> U = epsClosure(move(T, a));
             if (!U.empty()) {
@@ -53,14 +53,15 @@ void DFA::build(NFA* nfa) {
                 if (statesBeforeMapping.find(U) == statesBeforeMapping.end()) {
                     statesBeforeMapping.insert(U);
                     markedStates[U] = false;
-                    DStates[U] = new State();
-                    modifyAcceptingState(DStates[U], U);
+                    groupedStates[U] = new State();
+                    modifyAcceptingState(groupedStates[U], U);
                 }
-                Dtransitions[DStates[T]].insert(new Transation(DStates[T], DStates[U], a));
+                Dtransitions[groupedStates[T]].insert(new Transation(groupedStates[T], groupedStates[U], a));
             }
         }
         T = getUnmarked(markedStates);
     }
+    //cout << "Size before minmization: " << groupedStates.size() << endl;
 }
 
 set<State*> DFA::epsClosure(State* s) {
@@ -117,7 +118,7 @@ void DFA::minimize(){
     set<set<State*>> groups;
     unordered_map<TokenKey*, set<State*>> subgroups;
     TokenKey* nonAccepting = new TokenKey("NonAccepting");
-    for (auto s : DStates) {
+    for (auto s : groupedStates) {
         State* curr = s.second;
         if (curr->getIsAcceptingState() == false) {
             subgroups[nonAccepting].insert(curr);
@@ -134,6 +135,7 @@ void DFA::minimize(){
 
     bool NotMinimized = true;
     while (NotMinimized){
+        // cout << "Size now : " << groups.size() << '\n';
         set<set<State*>> newGroups(groups.begin(), groups.end());
         for (string x : inputSymbols) {
             newGroups = partition(newGroups, x);
@@ -143,6 +145,8 @@ void DFA::minimize(){
         }
         groups = newGroups;
     }
+    mapGroupsToStates(groups);
+    //cout << "Size after minimization: " << DStates.size() << endl;
 }
 
 set<set<State*>> DFA::partition(set<set<State*>>& groups, string x) {
@@ -176,26 +180,44 @@ set<set<State*>> DFA::partition(set<set<State*>>& groups, string x) {
 }
 
 bool DFA::goToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s) {
-    set<State*>::iterator it = move(a, s).begin();
-    State* nextOf_a= *it;
-    it = move(b, s).begin();
-    State* nextOf_b= *it;
-
-    for (set<State*> g : groups) {
-        if (g.find(nextOf_a) != g.end() && g.find(nextOf_b) != g.end()) {
-            return true;
-        }
+    set<State*> nextA = move(a, s);
+    set<State*> nextB = move(b, s);
+    if (nextA.empty() && nextB.empty()) return true;
+    else if ((!nextA.empty() && nextB.empty()) || (nextA.empty() && !nextB.empty())) return false;
+    else {
+        State* nexta = *nextA.begin();
+        State* nextb = *nextB.begin();
+        for (set<State*> g : groups)
+            if (g.find(nexta) != g.end() && g.find(nextb) != g.end()) return true;
     }
     return false;
 }
 
+void DFA::mapGroupsToStates(set<set<State*>>& groups) {
+    unordered_map<State*, State*> representativeStates;
+    for (set<State*> T : groups) {
+        State* repState = *T.begin();
+        representativeStates[repState] = repState;
+        for (auto it = next(T.begin(), 1); it != T.end(); ++it) {
+            representativeStates[*it] = repState;
+        }
+    }
+
+    for (auto s : representativeStates) DStates.insert(s.second);
+
+    map<State*, set<Transation*>> finalTransitions;
+    for (set<State*> T : groups) {
+        State* repState = representativeStates[*T.begin()];
+        for (auto tran : Dtransitions[repState]) {
+            finalTransitions[repState].insert(new Transation(repState, representativeStates[tran->to], tran->condition));
+        }
+    }
+    Dtransitions = finalTransitions;
+}
+
 map<State*, set<Transation*>> DFA::getTransitions() {return this->Dtransitions;}
 
-set<State*> DFA::getStates() {
-    set<State*> T;
-    for (auto entry : DStates) T.insert(entry.second);
-    return T;
-}
+set<State*> DFA::getStates() {return DStates;}
 
 State* DFA::getStartState() {return this->startState;}
 

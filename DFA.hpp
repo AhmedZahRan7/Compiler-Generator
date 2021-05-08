@@ -16,7 +16,8 @@ private:
      * @brief set of nfa states belong to one group are mapped to a new state which
      * will be used instead of the set.
      */
-    map<set<State*>, State*> DStates;
+    map<set<State*>, State*> groupedStates;
+    set<State*> DStates;
     set<string> inputSymbols;
     bool switchToDtran;
 
@@ -31,6 +32,7 @@ private:
     void minimize();
     set<set<State*>> partition(set<set<State*>>& groups, string x);
     bool goToSameGroup(set<set<State*>>& groups, State* a ,State* b, string s);
+    void mapGroupsToStates(set<set<State*>>& groups);
     string printStates(set<State*> T);
 public:
     /**
