@@ -17,7 +17,6 @@ outName = run
 
 build: clean
 	$(CC) $(CFLAGS) $(all) -o $(outName)
-	run
 
 clean:
 	del -f *.o *.exe

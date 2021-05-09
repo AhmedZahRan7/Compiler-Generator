@@ -49,21 +49,6 @@ NFA* NFA::concatenate(NFA* firstNFA,NFA* secondNFA){
     }
     nfa1->setFinalState(nfa2->finalState);
     return nfa1;
-    // NFA * nfa = new NFA();
-    // nfa->setStartState(firstNFA->getStartState());
-    // nfa->setFinalState(secondNFA->getFinalState());
-    // for(State* state : firstNFA->states){
-    //     if(state != firstNFA->finalState) nfa->addState(state);
-    //     for(Transation* trans : firstNFA->getTransationFromState(state)){
-    //         if(trans->to != firstNFA->finalState) nfa->addTransation(state,trans);
-    //         else nfa->addTransation(state,secondNFA->startState,trans->condition);
-    //     }
-    // }
-    // for(State* state : secondNFA->states){
-    //     nfa->addState(state);
-    //     for(Transation* trans : secondNFA->getTransationFromState(state)) nfa->addTransation(state,trans);
-    // }
-    // return nfa;
 }
 NFA* NFA::unionWith(NFA* firstNFA,NFA* secondNFA){
     NFA* nfa1 = firstNFA->clone();
@@ -101,24 +86,6 @@ NFA* NFA::convertIntoPositiveClosure(NFA* oldNfa){
     nfa->setStartState(newStart);
     nfa->setFinalState(newFinal);
     return nfa;
-    // nfa->setStartState(new State());
-    // nfa->setFinalState(new State());
-    // State* newFinal = new State();
-    // nfa->addState(nfa->startState);
-    // nfa->addState(nfa->finalState);
-    // nfa->addState(newFinal);
-    // for(State* state : oldNfa->states){
-    //     if(state != oldNfa->finalState) nfa->addState(state);
-    //     else nfa->addState(newFinal);
-    //     for(Transation* trans : oldNfa->getTransationFromState(state)){
-    //         if(trans->to != oldNfa->finalState) nfa->addTransation(state,trans);
-    //         else nfa->addTransation(state,newFinal,trans->condition);
-    //     }
-    // }
-    // nfa->addTransation(newFinal,oldNfa->startState,EPSILON_TRANSATION);
-    // nfa->addTransation(newFinal,nfa->finalState,EPSILON_TRANSATION);
-    // nfa->addTransation(nfa->startState,oldNfa->startState,EPSILON_TRANSATION);
-    // return nfa;
 }
 NFA* NFA::formNFAForRangeOperator(char from,char to){
     NFA* nfa = new NFA();

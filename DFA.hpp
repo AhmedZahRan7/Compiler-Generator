@@ -47,5 +47,6 @@ public:
     set<State*> getStates();
     State* getStartState();
     string toString();
+    void toCSV();
 };
 #endif

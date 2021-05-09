@@ -45,7 +45,6 @@ void Lexical_Analyzer::addToken(State* s, string word) {
     if (s->getAcceptingTokenKey()->getKey() == "id") {
         SymbolTable.push_back(t);
     }
-    cout << '{' << t->getKey()->getKey() << ", " << t->getValue()->getValue() << "}\n";
 }
 
 void Lexical_Analyzer::recoveryRoutine(string word) {

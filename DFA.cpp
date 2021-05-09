@@ -213,6 +213,7 @@ void DFA::mapGroupsToStates(set<set<State*>>& groups) {
         }
     }
     Dtransitions = finalTransitions;
+    //this->toCSV();
 }
 
 map<State*, set<Transation*>> DFA::getTransitions() {return this->Dtransitions;}
@@ -245,4 +246,34 @@ string DFA::toString() {
         }
     }
     return out.str();
+}
+
+void DFA::toCSV() {
+    ofstream file("TransitionTable.csv");
+    file << "State, ";
+    for (string a : inputSymbols) file << a << ',';
+    file << endl;
+    stack<State*> st;
+    st.push(this->startState);
+    set<State*> noRepeatSet;
+    while (!st.empty()) {
+        State* curr = st.top();
+        noRepeatSet.insert(curr);
+        st.pop();
+        file << curr->getID() << ',';
+        for (string a : inputSymbols) {
+            set<State*> nextSet = move(curr, a);
+            if (!nextSet.empty()) {
+                State* next = *nextSet.begin();
+                if (noRepeatSet.find(next) == noRepeatSet.end()) {
+                    st.push(next);
+                    noRepeatSet.insert(next);
+                }
+                file << next->getID();
+            }
+            file << ',';
+        }
+        file << endl;
+    }
+    file.close();
 }
