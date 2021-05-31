@@ -4,7 +4,7 @@
 
 class LLParser {
 private:
-    map<NonTerminal*, map<Terminal, NonTerminal*>> parsingTable;
+    map<NonTerminal*, map<Terminal*, Production*>> parsingTable;
 public:
     LLParser();
 };

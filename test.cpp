@@ -4,12 +4,12 @@
 // namespace std {
 //     template<>
 //     struct hash<Terminal> {
-//         std::size_t operator()(const Terminal& t) const {
+//         std::size_t operator()(const Elem& t) const {
 //             using std::size_t;
 //             using std::hash;
 //             using std::string;
 
-//             return hash<string>()(t.key);
+//             return hash<string>()(t.getId());
 //         }
 //     };
 // };
