@@ -1,18 +1,15 @@
-CC = g++
-CFLAGS = -Wall -g
+LEX_DIR := Lexical_Analyzer_Generator
+LEX_SRC := $(wildcard $(LEX_DIR)/*.cpp)
+PARSER_DIR := Parser_Generator
+PARSER_SRC := $(wildcard $(PARSER_DIR)/*.cpp)
 
-all :=main.cpp
-all +=DFA.cpp
-all +=Lexical_Analyzer_Generator.cpp
-all +=Lexical_Analyzer.cpp
-all +=NFA.cpp
-all +=NFABuilder.cpp
-all +=State.cpp
-all +=Token.cpp
-all +=TokenKey.cpp
-all +=TokenValue.cpp
-all +=Transation.cpp
-all +=utilities.cpp
+CC = g++
+CFLAGS = -Wall -g -I$(LEX_DIR) -I$(PARSER_DIR)
+
+#all := main.cpp
+all := test.cpp
+all += $(LEX_SRC)
+all += $(PARSER_SRC)
 outName = run
 
 build: clean
