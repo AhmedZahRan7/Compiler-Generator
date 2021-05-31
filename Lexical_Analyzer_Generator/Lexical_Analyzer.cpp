@@ -128,3 +128,7 @@ string Lexical_Analyzer::printTransitionTable() {
     }
     return out.str();
 }
+
+set<TokenKey*>* Lexical_Analyzer::getOrderedKeys() {
+    return Token::getOrderedKeys();
+}

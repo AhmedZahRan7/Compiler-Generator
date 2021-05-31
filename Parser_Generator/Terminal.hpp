@@ -2,14 +2,12 @@
 #define Terminal_HPP
 #include "Elem.hpp"
 
-class Terminal : Elem {
+class Terminal : public Elem {
 private:
 
 public:
     Terminal();
     Terminal(string key);
-
-    // bool operator==(Terminal t) {return t.getKey() == this->key;}
 };
 
 #endif

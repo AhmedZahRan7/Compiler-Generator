@@ -24,5 +24,6 @@ public:
     Token* getToken();
     vector<Token*> getSymbolTable();
     string printTransitionTable();
+    set<TokenKey*>* getOrderedKeys();
 };
 #endif

@@ -2,7 +2,7 @@
 #define NonTerminal_HPP
 #include "Elem.hpp"
 
-class NonTerminal : Elem {
+class NonTerminal : public Elem {
 private:
 
 public:

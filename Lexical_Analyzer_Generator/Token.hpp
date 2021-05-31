@@ -6,8 +6,8 @@
 /**
  * @brief Token is the output unit of the lexical analyzer to be an input
  *  for the next step of the compiler (The Parser)
- * Token cosists of 2 components : 
- * @param key the key of the token 
+ * Token consists of 2 components :
+ * @param key the key of the token
  * @param value the value of the token
  * if the input of analyzer is "while (x>50) x = x - 1;"
  * the output tokens are <"keyword","while">, <"Punctuation","(">,

@@ -1,6 +1,8 @@
 #ifndef CFGBuilder_HPP
 #define CFGBuilder_HPP
 #include "utilities.hpp"
+#include "Production.hpp"
+#include "TokenKey.hpp"
 
 /**
  * @brief Context Free Grammar Builder takes the rules text file as an input,
@@ -10,10 +12,19 @@
 class CFGBuilder {
 private:
     fstream rulesFile;
+    vector<Production*> procList;
+    set<Terminal*> allTerminals;
+    set<NonTerminal*> allNonTerminals;
     void buildCFG();
-    bool isAllLexTokensIncluded();
+    void parseRule(string& line);
+    string parseLHS(string& line, unsigned int& pos);
+    vector<vector<Elem*>> parseRHS(string line);
+    NonTerminal* addNonTerminal(string buffer);
+    Terminal* checkTerminal(string buffer);
 public:
-    CFGBuilder(string path);
+    CFGBuilder(string path, set<TokenKey*> lexTokenKeys);
+    void setTerminals(set<TokenKey*> lexTokenKeys);
+    void printProductions();
 };
 
 #endif
