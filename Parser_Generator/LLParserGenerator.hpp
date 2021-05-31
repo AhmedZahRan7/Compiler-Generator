@@ -2,22 +2,23 @@
 #define LLParserGenerator_HPP
 #include "CFGBuilder.hpp"
 #include "Production.hpp"
+#include "LLParser.hpp"
 
 class LLParserGenerator {
 private:
     vector<Production*> rules;
     vector<Terminal> symbols;
-    // unordered_map<NonTerminal*, unordered_set<Terminal>> first, follow;
+    set<Terminal*> allTerminals;
     map<NonTerminal*, set<Terminal*>> first, follow;
-    void eliminateImmediateRecursion(Production* proc);
     void buildFirst();
     void buildFollow();
-
+    void eliminateImmediateRecursion();
     void eliminateLeftRecursion();
     void leftRefactoring();
 public:
     LLParserGenerator();
-    LLParserGenerator(vector<Production*> procs);
+    LLParserGenerator(vector<Production*> rules, set<Terminal*> allTerminals);
+    LLParser* generateParser();
 };
 
 #endif

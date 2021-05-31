@@ -18,6 +18,8 @@ private:
     vector<vector<Elem*>> rhs;
 public:
     Production();
+    NonTerminal* getLHS();
+    vector<vector<Elem*>> getRHS();
 };
 
 #endif
