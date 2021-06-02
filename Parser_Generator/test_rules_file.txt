@@ -1,3 +1,5 @@
-
-SIMPLE_EXPRESSION = TERM | SIGN TERM | SIMPLE_EXPRESSION 'addop' TERM
-SIMPLE_EXPRESSION= sayed | EPSILON | \L
+S = R T
+R = 's' U R 'b' | '\L'
+U = 'u' U | '\L'
+V = 'v' V | '\L'
+T = V 't' T | '\L'

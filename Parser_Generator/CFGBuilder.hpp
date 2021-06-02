@@ -3,7 +3,7 @@
 #include "utilities.hpp"
 #include "Production.hpp"
 #include "TokenKey.hpp"
-//#include "specialTerminals.hpp"
+#include "specialTerminals.hpp"
 
 /**
  * @brief Context Free Grammar Builder takes the rules text file as an input,

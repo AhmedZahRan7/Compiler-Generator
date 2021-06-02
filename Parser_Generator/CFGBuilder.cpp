@@ -89,13 +89,13 @@ vector<vector<Elem*>> CFGBuilder::parseRHS(string line) {
         if (c == '\'') {
             if (terminalFlag) {
                 terminalFlag = false;
-                // if (buffer=="epsilon" || buffer =="EPSILON" || buffer =="\\L"){
-                //    rhs[currVec].push_back((Elem*)EPSILON);
-                // }
-                // else{
-                //    rhs[currVec].push_back(checkTerminal(buffer));
-                // }
-                rhs[currVec].push_back(checkTerminal(buffer));
+                 if (buffer=="epsilon" || buffer =="EPSILON" || buffer =="\\L"){
+                    rhs[currVec].push_back((Elem*)EPSILON);
+                 }
+                 else{
+                    rhs[currVec].push_back(checkTerminal(buffer));
+                 }
+                //rhs[currVec].push_back(checkTerminal(buffer));
             } else {
                 if (!buffer.empty()) rhs[currVec].push_back(addNonTerminal(buffer));
                 terminalFlag = true;
