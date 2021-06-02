@@ -1,10 +1,11 @@
 #ifndef LLParser_HPP
 #define LLParser_HPP
-#include "LLParserGenerator.hpp"
+#include "NonTerminal.hpp"
+#include "Terminal.hpp"
 
 class LLParser {
 private:
-    map<NonTerminal*, map<Terminal*, Production*>> parsingTable;
+    unordered_map<NonTerminal*, unordered_map<Terminal*, vector<Elem*> >> parsingTable;
 public:
     LLParser();
 };

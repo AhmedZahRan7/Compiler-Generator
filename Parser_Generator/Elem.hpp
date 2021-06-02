@@ -8,7 +8,7 @@ protected:
 public:
     Elem();
     Elem(string id);
-    string getId() const;
+    virtual string getId() const;
     // bool operator==(Elem t) {return t.getId() == this->id;}
 };
 

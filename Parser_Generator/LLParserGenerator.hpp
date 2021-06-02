@@ -3,7 +3,7 @@
 #include "CFGBuilder.hpp"
 #include "Production.hpp"
 #include "LLParser.hpp"
-#include "specialTerminals.hpp"
+#include "SpecialTerminals.hpp"
 
 class LLParserGenerator {
 private:
@@ -20,10 +20,16 @@ private:
     void leftRefactoring();
     void setFirst(NonTerminal* lhs);
     unordered_set<Terminal*> getFirstOfNonTerminal(NonTerminal* nt, bool& epsilonExist);
+    void followNonTerInLast(NonTerminal* lhs , NonTerminal* rhs);
+    void followTer(NonTerminal* nonTerminal,Terminal* terminal);
+    void followNonTer(NonTerminal* lhs ,NonTerminal* rhs, NonTerminal* nextOfRhs);
+    unordered_set<Terminal*> getFirstOfOneProduction(vector<Elem*> elements);
 public:
     LLParserGenerator();
     LLParserGenerator(vector<Production*> rules, set<Terminal*> allTerminals);
     LLParser* generateParser();
+    void printFirst();
+    void printFollow();
 };
 
 #endif
