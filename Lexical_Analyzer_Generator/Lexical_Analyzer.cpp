@@ -6,7 +6,7 @@ Lexical_Analyzer::Lexical_Analyzer(set<State*> DStates, map<State*, set<Transati
     this->startState = startState;
 }
 
-State* Lexical_Analyzer::simulate(string word) {
+State* Lexical_Analyzer::simNormal(string word) {
     State* s = this->startState;
     set<State*> curr_set;
     for (char c : word) {
@@ -17,14 +17,12 @@ State* Lexical_Analyzer::simulate(string word) {
     return s;
 }
 
-void Lexical_Analyzer::simulate(vector<string> words) {
-    for (string word : words) {
-        State* s = simulate(word);
-        if (s->getIsAcceptingState()) {
-            addToken(s, word);
-        } else {
-            recoveryRoutine(word);
-        }
+void Lexical_Analyzer::simulate(string word) {
+    State* s = simNormal(word);
+    if (s->getIsAcceptingState()) {
+        addToken(s, word);
+    } else {
+        simRecovery(word);
     }
 }
 
@@ -41,13 +39,13 @@ set<State*> Lexical_Analyzer::move(State* s, string a) {
 
 void Lexical_Analyzer::addToken(State* s, string word) {
     auto t = new Token(s->getAcceptingTokenKey(), new TokenValue(word));
-    this->Tokens.push_back(t);
+    this->tokenBuffer.push(t);
     if (s->getAcceptingTokenKey()->getKey() == "id") {
         SymbolTable.push_back(t);
     }
 }
 
-void Lexical_Analyzer::recoveryRoutine(string word) {
+void Lexical_Analyzer::simRecovery(string word) {
     State* s = this->startState;
     set<State*> curr_set;
     string buffer;
@@ -88,24 +86,10 @@ void Lexical_Analyzer::recoveryRoutine(string word) {
     }
 }
 
-void Lexical_Analyzer::simulateProgramFile(string path) {
-    fstream file;
-    file.open(path, ios::in);
-    if (!file.is_open()) {
-        cout << "File not exist";
-    }
-
-    string line;
-    while (getline(file,line)) {
-        vector<string> words = split(line);
-        simulate(words);
-    }
-    file.close();
-}
-
-Token* Lexical_Analyzer::getToken() {
-    if (!Tokens.empty() && token_index < Tokens.size()) {
-        Token* t = this->Tokens[token_index++];
+Token* Lexical_Analyzer::getNextToken() {
+    if (!tokenBuffer.empty()) {
+        Token* t = tokenBuffer.front();
+        tokenBuffer.pop();
         return t;
     }
     return nullptr;
