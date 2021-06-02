@@ -13,9 +13,9 @@
 class CFGBuilder {
 private:
     fstream rulesFile;
-    vector<Production*> procList;
+    
     unordered_map<string,Production*> rulesMapping;
-    set<Terminal*> allTerminals;
+    
     set<NonTerminal*> allNonTerminals;
     void buildCFG();
     void parseRule(string& line);
@@ -24,6 +24,9 @@ private:
     NonTerminal* addNonTerminal(string buffer);
     Terminal* checkTerminal(string buffer);
 public:
+    vector<Production*> procList;
+    set<Terminal*> allTerminals;
+    
     CFGBuilder(string path, set<TokenKey*> lexTokenKeys);
     void setTerminals(set<TokenKey*> lexTokenKeys);
     void printProductions();   
