@@ -2,7 +2,7 @@
 #define SPECIAL_TERMINALS_HPP
 #include "Terminal.hpp"
 
-Terminal* EPSILON = new Terminal("E");
-Terminal* DOLLAR_SIGN  = new Terminal("$");
+extern Terminal* EPSILON ;
+extern Terminal* DOLLAR_SIGN;
 
 #endif
