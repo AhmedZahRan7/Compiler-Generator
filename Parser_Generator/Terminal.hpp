@@ -3,8 +3,6 @@
 #include "Elem.hpp"
 
 class Terminal : public Elem {
-private:
-
 public:
     Terminal();
     Terminal(string key);

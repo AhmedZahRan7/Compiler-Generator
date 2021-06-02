@@ -95,7 +95,6 @@ vector<vector<Elem*>> CFGBuilder::parseRHS(string line) {
                  else{
                     rhs[currVec].push_back(checkTerminal(buffer));
                  }
-                //rhs[currVec].push_back(checkTerminal(buffer));
             } else {
                 if (!buffer.empty()) rhs[currVec].push_back(addNonTerminal(buffer));
                 terminalFlag = true;
@@ -122,47 +121,42 @@ vector<vector<Elem*>> CFGBuilder::parseRHS(string line) {
 }
 
 NonTerminal* CFGBuilder::addNonTerminal(string buffer) {
-    // NonTerminal* t = new NonTerminal(trim(buffer));
-    // auto it = this->allNonTerminals.find(t);
-    // if (it != this->allNonTerminals.end()) {
-    //     this->allNonTerminals.insert(t);
-    //     return t;
-    // }
-    // delete t;
-    // return *it;
     trim(buffer);
-    for (auto t : this->allNonTerminals) {
-        if (buffer == t->getId()) return t;
+    auto it = this->nonTerminalsMapping.find(buffer);
+    if (it == this->nonTerminalsMapping.end()) {
+        NonTerminal* nt = new NonTerminal(buffer);
+        this->nonTerminalsMapping[buffer] = nt;
     }
-    NonTerminal* t = new NonTerminal(buffer);
-    this->allNonTerminals.insert(t);
-    return t;
+    return this->nonTerminalsMapping[buffer];
 }
 
 Terminal* CFGBuilder::checkTerminal(string buffer) {
-    // Terminal* t = new Terminal(trim(buffer));
-    // auto it = this->allTerminals.find(t);
-    // if (it != this->allTerminals.end()) {
-    //     this->allTerminals.insert(t);
-    //     return t;
-    // }
-    // delete t;
-    // return *it;
     trim(buffer);
-    for (auto t : this->allTerminals) {
-        if (buffer == t->getId()) return t;
+    auto it = this->terminalsMapping.find(buffer);
+    if (it == this->terminalsMapping.end()) {
+        // cout << "Terminal " + buffer +  " is not found in lexical analyzer tokens.\n";
+        // cout << "Add it to the parser terminals.\n";
+        Terminal *t = new Terminal(buffer);
+        this->terminalsMapping[buffer] = t;
     }
-    // Todo: exception handling
-    Terminal* t = new Terminal(buffer);
-    this->allTerminals.insert(t);
-    return t;
+    return this->terminalsMapping[buffer];
 }
 
 void CFGBuilder::setTerminals(set<TokenKey*> lexTokenKeys) {
     for (auto tk : lexTokenKeys) {
-        this->allTerminals.insert(new Terminal(tk->getKey()));
+        this->terminalsMapping[tk->getKey()] = new Terminal(tk->getKey());
     }
 }
+
+set<Terminal*> CFGBuilder::getTerminals() {
+    set<Terminal*> allTerminals;
+    for (auto rt : this->terminalsMapping) {
+        allTerminals.insert(rt.second);
+    }
+    return allTerminals;
+}
+
+vector<Production*> CFGBuilder::getProcs() {return this->procList;}
 
 void CFGBuilder::printProductions() {
     for (auto p : this->procList) {

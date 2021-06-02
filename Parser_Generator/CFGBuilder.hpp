@@ -13,23 +13,26 @@
 class CFGBuilder {
 private:
     fstream rulesFile;
-    
-    unordered_map<string,Production*> rulesMapping;
-    
-    set<NonTerminal*> allNonTerminals;
+    vector<Production*> procList;
+
+    // Rules mapping maps the left hand side non terminal string to a production.
+    // It's used to add any replications of a rules to the same production.
+    unordered_map<string, Production*> rulesMapping;
+
+    unordered_map<string, Terminal*> terminalsMapping;
+    unordered_map<string, NonTerminal*> nonTerminalsMapping;
     void buildCFG();
     void parseRule(string& line);
     string parseLHS(string& line, unsigned int& pos);
     vector<vector<Elem*>> parseRHS(string line);
     NonTerminal* addNonTerminal(string buffer);
     Terminal* checkTerminal(string buffer);
+    void printProductions();
 public:
-    vector<Production*> procList;
-    set<Terminal*> allTerminals;
-    
     CFGBuilder(string path, set<TokenKey*> lexTokenKeys);
     void setTerminals(set<TokenKey*> lexTokenKeys);
-    void printProductions();   
+    set<Terminal*> getTerminals();
+    vector<Production*> getProcs();
 };
 
 #endif
