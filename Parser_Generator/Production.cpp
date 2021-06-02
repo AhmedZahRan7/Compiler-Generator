@@ -10,3 +10,7 @@ Production::Production(NonTerminal* lhs, vector<vector<Elem*>> rhs) {
 NonTerminal* Production::getLHS() {return this->lhs;}
 
 vector<vector<Elem*>> Production::getRHS() {return this->rhs;}
+
+void Production::addToRHS(vector<vector<Elem*>> anotherRHS){
+    this->rhs.insert(this->rhs.end(), anotherRHS.begin(), anotherRHS.end());
+}

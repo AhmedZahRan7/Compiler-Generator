@@ -21,6 +21,7 @@ public:
     Production(NonTerminal* lhs, vector<vector<Elem*>> rhs);
     NonTerminal* getLHS();
     vector<vector<Elem*>> getRHS();
+    void addToRHS(vector<vector<Elem*>> anotherRHS);
 };
 
 #endif

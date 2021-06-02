@@ -3,6 +3,7 @@
 #include "utilities.hpp"
 #include "Production.hpp"
 #include "TokenKey.hpp"
+//#include "specialTerminals.hpp"
 
 /**
  * @brief Context Free Grammar Builder takes the rules text file as an input,
@@ -13,6 +14,7 @@ class CFGBuilder {
 private:
     fstream rulesFile;
     vector<Production*> procList;
+    unordered_map<string,Production*> rulesMapping;
     set<Terminal*> allTerminals;
     set<NonTerminal*> allNonTerminals;
     void buildCFG();
@@ -24,7 +26,7 @@ private:
 public:
     CFGBuilder(string path, set<TokenKey*> lexTokenKeys);
     void setTerminals(set<TokenKey*> lexTokenKeys);
-    void printProductions();
+    void printProductions();   
 };
 
 #endif

@@ -47,10 +47,17 @@ void CFGBuilder::parseRule(string& line) {
         cout << "\nRule format is not correct for rule: " + line + '\n';
         return;
     }
-
-    Production* proc;
-    proc = new Production(addNonTerminal(lhs), rhs);
-    this->procList.push_back(proc);
+    auto it=rulesMapping.find(lhs);
+    if(it == rulesMapping.end()){
+        Production* proc;
+        proc = new Production(addNonTerminal(lhs), rhs);
+        this->procList.push_back(proc);
+        rulesMapping[lhs]=proc;
+    }
+    else{
+        Production* proc=rulesMapping[lhs];
+        proc->addToRHS(rhs);
+    }
 }
 
 // Parse left hand side which is a non empty string before the assignment operator.
@@ -82,6 +89,12 @@ vector<vector<Elem*>> CFGBuilder::parseRHS(string line) {
         if (c == '\'') {
             if (terminalFlag) {
                 terminalFlag = false;
+                // if (buffer=="epsilon" || buffer =="EPSILON" || buffer =="\\L"){
+                //    rhs[currVec].push_back((Elem*)EPSILON);
+                // }
+                // else{
+                //    rhs[currVec].push_back(checkTerminal(buffer));
+                // }
                 rhs[currVec].push_back(checkTerminal(buffer));
             } else {
                 if (!buffer.empty()) rhs[currVec].push_back(addNonTerminal(buffer));
