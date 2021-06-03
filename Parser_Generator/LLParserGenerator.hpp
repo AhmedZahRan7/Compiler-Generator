@@ -28,6 +28,7 @@ public:
     LLParserGenerator();
     LLParserGenerator(vector<Production*> rules, set<Terminal*> allTerminals);
     LLParser* generateParser();
+    NonTerminal* getStartState();
     void printFirst();
     void printFollow();
 };

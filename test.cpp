@@ -33,8 +33,8 @@ int main() {
             lex->simulate(w);
             Token* t;
             while ((t = lex->getNextToken()) != nullptr) {
-                // parser->simulate(t);
-                cout << '{' << t->getKey()->getKey() << ", " << t->getValue()->getValue() << "}\n";
+                // parser->parse(t);
+                // cout << '{' << t->getKey()->getKey() << ", " << t->getValue()->getValue() << "}\n";
             }
         }
     }

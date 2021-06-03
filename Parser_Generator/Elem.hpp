@@ -11,4 +11,6 @@ public:
     virtual string getId() const;
 };
 
+extern Elem* SYNC;
+
 #endif

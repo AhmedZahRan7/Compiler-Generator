@@ -23,7 +23,7 @@ unordered_set<Terminal*> LLParserGenerator::getFirstOfNonTerminal(NonTerminal* n
             if(isEpsilon(t)) epsilonExist = true;
             else ans.insert(t);
         }
-        return ans; 
+        return ans;
 }
 unordered_set<Terminal*> LLParserGenerator::getFirstOfOneProduction(vector<Elem*> rhs){
 
@@ -37,7 +37,7 @@ unordered_set<Terminal*> LLParserGenerator::getFirstOfOneProduction(vector<Elem*
             ans.insert((Terminal*)e);
             break;
         }
-        // if this production depends on another nonTerminal 
+        // if this production depends on another nonTerminal
         // and the first set of this nonTerminal has not been built yet
         // then build it first
         if(!this->isFirstBuild[(NonTerminal*)e]) setFirst((NonTerminal*)e);
@@ -47,7 +47,7 @@ unordered_set<Terminal*> LLParserGenerator::getFirstOfOneProduction(vector<Elem*
         for(Terminal* t : nextFirst) ans.insert(t);
         if(!epsilonExistInTheFollowingNonTerminal) break;
 
-        // X -> Y1 Y2 ....... Yn -- if i reached Yn and not break then Epsilon exists in all Yi i =[1,n] >> insert Epsilon in X  
+        // X -> Y1 Y2 ....... Yn -- if i reached Yn and not break then Epsilon exists in all Yi i =[1,n] >> insert Epsilon in X
         if(e == rhs.back()) ans.insert(EPSILON);
     }
     return ans;
@@ -69,7 +69,7 @@ void LLParserGenerator::printFirst(){
     for(auto p : this->first){
         cout<< p.first->getId();
         cout<<" -> ";
-        for(Elem* e:p.second) cout << e->getId() << " "; 
+        for(Elem* e:p.second) cout << e->getId() << " ";
         cout<<endl;
     }
 }
@@ -77,7 +77,7 @@ void LLParserGenerator::printFollow(){
     for(auto p : this->follow){
         cout<< p.first->getId();
         cout<<" -> ";
-        for(Elem* e:p.second) cout << e->getId() << " "; 
+        for(Elem* e:p.second) cout << e->getId() << " ";
         cout<<endl;
     }
 }
@@ -153,3 +153,5 @@ LLParser* LLParserGenerator::generateParser(){
     // }
     return parser;
 }
+
+NonTerminal* LLParserGenerator::getStartState() {return rules[0]->getLHS();}
