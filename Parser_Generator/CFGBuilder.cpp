@@ -25,7 +25,7 @@ void CFGBuilder::parseRule(string& line) {
     unsigned int pos = 0;
     string lhs;
     if (line[pos] == '|') {
-        if (!this->procList.empty()) { 
+        if (!this->procList.empty()) {
             lhs = this->procList.back()->getLHS()->getId();
         }
         else {
@@ -133,8 +133,8 @@ Terminal* CFGBuilder::checkTerminal(string buffer) {
     trim(buffer);
     auto it = this->terminalsMapping.find(buffer);
     if (it == this->terminalsMapping.end()) {
-        // cout << "Terminal " + buffer +  " is not found in lexical analyzer tokens.\n";
-        // cout << "Add it to the parser terminals.\n";
+        cout << "Terminal " + buffer +  " is not found in lexical analyzer tokens.\n";
+        cout << "Add it to the parser terminals.\n";
         Terminal *t = new Terminal(buffer);
         this->terminalsMapping[buffer] = t;
     }
@@ -142,9 +142,12 @@ Terminal* CFGBuilder::checkTerminal(string buffer) {
 }
 
 void CFGBuilder::setTerminals(set<TokenKey*> lexTokenKeys) {
+    // cout << "Lex Tokens :\n";
     for (auto tk : lexTokenKeys) {
         this->terminalsMapping[tk->getKey()] = new Terminal(tk->getKey());
+        // cout << tk->getKey() << endl;
     }
+    // cout << endl;
 }
 
 set<Terminal*> CFGBuilder::getTerminals() {

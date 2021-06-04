@@ -31,6 +31,7 @@ void NFABuilder::keyWordParser(string& line){
     line.erase(line.size()-1,1);
     vector<string> keyWords = split(line);
     for(string word : keyWords) {
+        if (word[0] == '\\') word.erase(0, 1);
         TokenKey* key = new TokenKey(word);
         Token::addTokenKey(key);
         this->nfaList.push_back(formNfaForKeyWord(word,key));
