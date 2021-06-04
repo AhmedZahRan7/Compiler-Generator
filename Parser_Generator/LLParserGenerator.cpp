@@ -2,20 +2,28 @@
 LLParserGenerator::LLParserGenerator(vector<Production*> rules,set<Terminal*> allTerminals){
     this->rules = rules;
     this->allTerminals = allTerminals;
+    this->startState = rules[0]->getLHS();
     for(Production* p : rules) this->rulesMapping[p->getLHS()] = p;
+
+
+    // for(Production* p : rules){
+    //     cout<<p->getLHS()->getId()<<" -> ";
+    //     for(vector<Elem*>& v : p->getRHS()){
+    //         for(Elem* e : v) cout<<e->getId()<<" ";
+    //         cout<<"  \n";
+    //     }
+    // }
+    cout<<"1"<<endl;
     buildFirst();
+    cout<<"2"<<endl;
     buildFollow();
+    cout<<"3"<<endl;
 }
 //If X is a terminal symbol FIRST(X)={X}
 //X is a non-terminal symbol and X -> E is a production rule then E is in FIRST(X)
 //If X is a non-terminal symbol and X -> Y1 Y2..Yn is a production rule >> if terminal a in FIRST(Yi) and E is in all FIRST(Yj) for j=1,...,i-1 then a is in FIRST(X).
 //if E is in all FIRST(Yj) for j=1,...,n then E is in FIRST(X).
-bool isTerminal(Elem* e){
-    return dynamic_cast<Terminal*>(e) != nullptr;
-}
-bool isEpsilon(Elem* e){
-    return e == EPSILON;
-}
+
 unordered_set<Terminal*> LLParserGenerator::getFirstOfNonTerminal(NonTerminal* nt, bool& epsilonExist){
         unordered_set<Terminal*> nonTerminalFirst = this->first[nt];
         unordered_set<Terminal*> ans;
@@ -25,7 +33,7 @@ unordered_set<Terminal*> LLParserGenerator::getFirstOfNonTerminal(NonTerminal* n
         }
         return ans;
 }
-unordered_set<Terminal*> LLParserGenerator::getFirstOfOneProduction(vector<Elem*> rhs){
+unordered_set<Terminal*> LLParserGenerator::getFirstOfOneProduction(vector<Elem*>& rhs){
 
     unordered_set<Terminal*> ans;
     for(Elem* e : rhs){
@@ -53,8 +61,9 @@ unordered_set<Terminal*> LLParserGenerator::getFirstOfOneProduction(vector<Elem*
     return ans;
 }
 void LLParserGenerator::setFirst(NonTerminal* lhs){
+    cout<<"Setting First of "<<lhs->getId()<<endl;
     Production* production  = this->rulesMapping[lhs];
-    for(vector<Elem*> rhs : production->getRHS()){
+    for(vector<Elem*>& rhs : production->getRHS()){
         unordered_set<Terminal*> firstOfProduction = getFirstOfOneProduction(rhs);
         for(Terminal* t : firstOfProduction) this->first[lhs].insert(t);
     }
@@ -65,64 +74,73 @@ void LLParserGenerator::buildFirst() {
         if(!this->isFirstBuild[p->getLHS()]) setFirst(p->getLHS());
     }
 }
-void LLParserGenerator::printFirst(){
-    for(auto p : this->first){
-        cout<< p.first->getId();
-        cout<<" -> ";
-        for(Elem* e:p.second) cout << e->getId() << " ";
-        cout<<endl;
-    }
-}
-void LLParserGenerator::printFollow(){
-    for(auto p : this->follow){
-        cout<< p.first->getId();
-        cout<<" -> ";
-        for(Elem* e:p.second) cout << e->getId() << " ";
-        cout<<endl;
-    }
-}
+
 // If $ is the start symbol $ is in FOLLOW(S)
 // if A -> xBy is a production rule >> everything in FIRST(y) is FOLLOW(B) except E
 // If ( A -> xB is a production rule ) or ( A -> xBy is a production rule and E is in FIRST(y)) >> everything in FOLLOW(A) is in FOLLOW(B).
-void LLParserGenerator::buildFollow() {
-    this->follow[this->rules[0]->getLHS()].insert(DOLLAR_SIGN);
-    for(Production* p : this->rules){
-        NonTerminal * nt = p->getLHS();
-        for(Production* rule : this->rules){
-            for( vector<Elem*> v : rule->getRHS()){
-                for(int i=0;i<v.size();i++){
-                    if(v[i] == nt){
-                        if(i == v.size()-1){
-                            followNonTerInLast(rule->getLHS(),nt);
-                        }
-                        else if(isTerminal(v[i+1])){
-                            followTer(nt,(Terminal*)v[i+1]);
-                        }
-                        else{
-                            followNonTer(rule->getLHS(),nt,(NonTerminal*)v[i+1]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+
+//include the follow of the LHS into this follow (non-terminal in RHS)
 void LLParserGenerator::followNonTerInLast(NonTerminal* lhs , NonTerminal* rhs){
+    if(lhs == rhs) return;
+    if(!isFollowBuild[lhs]) setFollow(lhs);
     for(Terminal* t :this->follow[lhs]) this->follow[rhs].insert(t);
 }
+
 void LLParserGenerator::followTer(NonTerminal* nonTerminal,Terminal* terminal){
     this->follow[nonTerminal].insert(terminal);
 }
-void LLParserGenerator::followNonTer(NonTerminal* lhs ,NonTerminal* rhs, NonTerminal* nextOfRhs){
-    bool epsilonInNext = false;
-    for(Terminal* t : this->first[nextOfRhs]){
-        if(!isEpsilon(t)) this->follow[rhs].insert(t);
-        if(isEpsilon(t)) epsilonInNext = true;
-    }
-    if(epsilonInNext){
-        for(Terminal* t :this->follow[lhs]) this->follow[rhs].insert(t);
+
+void LLParserGenerator::followNonTer(NonTerminal* lhs ,NonTerminal* rhs, vector<Elem*>&rhsVector,int idx){
+    for(;idx<rhsVector.size();idx++){
+        Elem* next = rhsVector[idx];
+        if(isTerminal(next)) {
+            this->follow[rhs].insert((Terminal*) next);
+            break;
+        }
+        bool epsilonInNext = false;
+        for(Terminal* t : this->first[(NonTerminal*)next]){
+            if(!isEpsilon(t)) this->follow[rhs].insert(t);
+            if(isEpsilon(t)) epsilonInNext = true;
+        }
+        if(!epsilonInNext) break;
+        //We reached the last Non-Terminal in the Production without breaking the loop
+        //This means all the following set is Non-terminals with E in First   
+        if(idx==rhsVector.size()-1){
+            if(lhs == rhs) break;
+            if(!this->isFollowBuild[lhs]) this->setFollow(lhs);
+            for(Terminal* t :this->follow[lhs]) this->follow[rhs].insert(t);
+        }
     }
 }
+
+void LLParserGenerator::setFollow(NonTerminal* lhs){
+    for(Production* rule : this->rules){
+        for(vector<Elem*>&v : rule->getRHS()){
+            for(int i=0;i<v.size();i++){
+                // cout<<v[i]->getId()<<" ";
+                if(v[i] == lhs){
+                    // The non-terminal is the last element in the production
+                    if(i == v.size()-1) followNonTerInLast(rule->getLHS(),lhs);
+                    // The non-terminal followed by a terminal
+                    else if(isTerminal(v[i+1])) followTer(lhs,(Terminal*)v[i+1]);
+                    // The non-terminal followed by another non-terminal
+                    else followNonTer(rule->getLHS(),lhs,v,i+1);
+                }
+            }
+            // cout<<endl;
+        }
+    }
+    this->isFollowBuild[lhs] = true;
+}
+
+void LLParserGenerator::buildFollow() {
+    this->follow[this->getStartState()].insert(DOLLAR_SIGN);
+    for(Production* p : this->rules) {
+        if(!this->isFollowBuild[p->getLHS()]) setFollow(p->getLHS());
+    }
+}
+
+
 /**
 for each production rule A -> x of a grammar G
     – for each terminal a in FIRST(x) add A -> x to M[A,a]
@@ -130,11 +148,11 @@ for each production rule A -> x of a grammar G
     – If E in FIRST(x) and $ in FOLLOW(A)  add A -> x to M[A,$]
  */
 LLParser* LLParserGenerator::generateParser(){
-    LLParser* parser = new LLParser();
+    LLParser* parser;
     // unordered_map<Terminal*,vector<Elem*> >> parsingTable ;
     // for(Production* p : this->rules){
     //     NonTerminal * nt = p->getLHS();
-    //     for(vector<Elem*>rhs: p->getRHS()){
+    //     for(vector<Elem*>& rhs: p->getRHS()){
     //         vector<Elem*>first = setFirst(rhs);
     //             for(Elem* fst : first){
     //                 if(isEpsilon(fst)){
@@ -153,5 +171,24 @@ LLParser* LLParserGenerator::generateParser(){
     // }
     return parser;
 }
-
-NonTerminal* LLParserGenerator::getStartState() {return rules[0]->getLHS();}
+void LLParserGenerator::printFirst(){
+    cout<<"Start set"<<endl;
+    for(auto p : this->first){
+        cout<< p.first->getId();
+        cout<<" -> ";
+        for(Elem* e:p.second) cout << e->getId() << " ";
+        cout<<endl;
+    }
+}
+void LLParserGenerator::printFollow(){
+    cout<<"Follow set"<<endl;
+    for(auto p : this->follow){
+        cout<< p.first->getId();
+        cout<<" -> ";
+        for(Elem* e:p.second) cout << e->getId() << " ";
+        cout<<endl;
+    }
+}
+NonTerminal* LLParserGenerator::getStartState() {
+    return this->startState;
+}

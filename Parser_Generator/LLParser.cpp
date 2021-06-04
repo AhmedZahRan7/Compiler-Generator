@@ -8,13 +8,6 @@ LLParser::LLParser(NonTerminal* startState, unordered_map<NonTerminal*, unordere
     this->LLStack.push(startState);
 }
 
-bool isTerminal(Elem* e) { return dynamic_cast<Terminal*>(e) != nullptr; }
-
-bool isNonTerminal(Elem* e) { return dynamic_cast<NonTerminal*>(e) != nullptr; }
-
-bool isSync(Elem* e) { return e == SYNC; }
-
-bool isEpsilon(Elem* e){ return e == EPSILON; }
 
 bool match(Terminal* a, Terminal* b) { return a == b; }
 
