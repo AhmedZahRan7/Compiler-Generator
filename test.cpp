@@ -16,9 +16,10 @@ int main() {
     auto duration = duration_cast<microseconds>(end - start);
     cout << duration.count() << " us\n";
     LLParserGenerator* generator =  new LLParserGenerator(cfg->getProcs(), cfg->getTerminals());
-    cout<<"test";
-    generator->printFirst();
-    generator->printFollow();
+    // cout<<"test";
+    // generator->printFirst();
+    // cout<<"\n \n \n";
+    // generator->printFollow();
 
     // fstream file;
     // file.open("lab_program.txt", ios::in);
@@ -40,5 +41,6 @@ int main() {
     //     }
     // }
     // file.close();
+    // // parser->parse(DOLLAR_SIGN);
     return 0;
 }

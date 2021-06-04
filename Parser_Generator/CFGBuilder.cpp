@@ -12,39 +12,38 @@ CFGBuilder::CFGBuilder(string path, set<TokenKey*> lexTokenKeys) {
 }
 
 void CFGBuilder::buildCFG() {
-    string line, nextLine;
+    string line;
     while (getline(this->rulesFile, line)) {
-        while (getline(this->rulesFile, nextLine)) {
-            removeSpaces(nextLine);
-            if (nextLine[0] == '|') {
-                line += ' ' + nextLine;
-                nextLine = "";
-            } else {
-                break;
-            }
-        }
+        removeSpaces(line);
+        if (line.empty()) continue;
         parseRule(line);
-        if (!nextLine.empty()) parseRule(nextLine);
-
-        if (this->rulesFile.eof()) break;
     }
-
     this->rulesFile.close();
 }
 
 void CFGBuilder::parseRule(string& line) {
-    if (line.size() == 0) return;
     unsigned int pos = 0;
-    string lhs = parseLHS(line, pos);
-    if (lhs.empty()) {
-        cout << "\nRule format is not correct for rule: " + line + '\n';
-        return;
+    string lhs;
+    if (line[pos] == '|') {
+        if (!this->procList.empty()) { 
+            lhs = this->procList.back()->getLHS()->getId();
+        }
+        else {
+            cout << "\nRule format is not correct for rule: " + line + '\n';
+            return;
+        }
+    } else {
+        lhs = parseLHS(line, pos);
+        if (lhs.empty()) {
+            cout << "\nlhsprintRule format is not correct for rule: " + line + '\n';
+            return;
+        }
     }
-
     pos++;
+
     vector<vector<Elem*>> rhs = parseRHS(line.substr(pos));
     if (rhs.empty()) {
-        cout << "\nRule format is not correct for rule: " + line + '\n';
+        cout << "\nrhsprintRule format is not correct for rule: " + line + '\n';
         return;
     }
     auto it=rulesMapping.find(lhs);
