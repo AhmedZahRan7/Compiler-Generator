@@ -31,7 +31,7 @@ private:
 public:
     CFGBuilder(string path, set<TokenKey*> lexTokenKeys);
     void setTerminals(set<TokenKey*> lexTokenKeys);
-    set<Terminal*> getTerminals();
+    unordered_map<string, Terminal*> getTerminals();
     vector<Production*> getProcs();
 };
 

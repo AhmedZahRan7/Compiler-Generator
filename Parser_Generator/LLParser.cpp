@@ -1,8 +1,6 @@
 #include "LLParser.hpp"
 
-LLParser::LLParser(NonTerminal* startState, unordered_map<NonTerminal*, unordered_map<Terminal*, vector<Elem*> >> parsingTable,
-                   unordered_map<string, Terminal*> terminalsMapping) {
-    this->parsingTable = parsingTable;
+LLParser::LLParser(NonTerminal* startState, unordered_map<string, Terminal*> terminalsMapping) {
     this->terminalsMapping = terminalsMapping;
     this->LLStack.push(DOLLAR_SIGN);
     this->LLStack.push(startState);
@@ -10,6 +8,29 @@ LLParser::LLParser(NonTerminal* startState, unordered_map<NonTerminal*, unordere
 
 
 bool match(Terminal* a, Terminal* b) { return a == b; }
+
+void LLParser::addToTable(NonTerminal* lhs, Terminal* symbol, vector<Elem*> elements) {
+    vector<Elem*> check = this->parsingTable[lhs][symbol];
+    if (!check.empty()) {
+        cout << "\nThe grammar is ambiguous as there are two production rules in the same entry\n";
+        cout << lhs->getId() << " -" << symbol->getId() << "-> ";
+        for (auto e : check) cout << e->getId();
+        cout << endl;
+        cout << lhs->getId() << " -" << symbol->getId() << "-> ";
+        for (auto e : elements) cout << e->getId() << " ";
+        cout << endl;
+        exit(1);
+    }
+    this->parsingTable[lhs][symbol] = elements;
+}
+
+bool LLParser::existInTable(NonTerminal* lhs, Terminal* symbol) {
+    auto row_it = this->parsingTable.find(lhs);
+    if (row_it != this->parsingTable.end()) {
+        return this->parsingTable[lhs].find(symbol) != this->parsingTable[lhs].end();
+    }
+    return false;
+}
 
 void LLParser::parse(Token* input) {
     Elem* top = this->LLStack.top();
@@ -49,9 +70,20 @@ void LLParser::parse(Token* input) {
 }
 
 void LLParser::output(NonTerminal* lhs, Terminal* input) {
-    cout << lhs->getId() << " ---> ";
-    for (auto t : this->parsingTable[lhs][input]) {
-        cout << t->getId();
+    // cout << lhs->getId() << " ---> ";
+    // for (auto t : this->parsingTable[lhs][input]) {
+    //     cout << t->getId() << " ";
+    // }
+    stack<Elem*> tmpStack;
+    while (!this->LLStack.empty()) {
+        tmpStack.push(this->LLStack.top());
+        this->LLStack.pop();
+    }
+
+    while (!tmpStack.empty()) {
+        cout << tmpStack.top()->getId() << " ";
+        this->LLStack.push(tmpStack.top());
+        tmpStack.pop();
     }
     cout << '\n';
 }
