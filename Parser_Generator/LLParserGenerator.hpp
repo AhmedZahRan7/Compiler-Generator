@@ -15,9 +15,6 @@ private:
     // map<vector<Elem*>&, unordered_set<Terminal*>> firstForThisVector;
     void buildFirst();
     void buildFollow();
-    void eliminateImmediateRecursion();
-    void eliminateLeftRecursion();
-    void leftRefactoring();
     void setFirst(NonTerminal* lhs);
     void setFollow(NonTerminal* lhs);
     unordered_set<Terminal*> getFirstOfNonTerminal(NonTerminal* nt, bool& epsilonExist);

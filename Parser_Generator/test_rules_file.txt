@@ -1,5 +1,3 @@
-E = T E"
-E" = 'addop' T E" | 'epsilon'
-T = F T"
-T" = 'mullop' F T" | 'epsilon'
-F = '(' E ')' | 'id'
+E = E 'addop' T | T
+T = T 'mullop' F | F
+F = 'id' | E

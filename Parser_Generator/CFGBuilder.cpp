@@ -7,7 +7,6 @@ CFGBuilder::CFGBuilder(string path, set<TokenKey*> lexTokenKeys) {
     } else {
         setTerminals(lexTokenKeys);
         buildCFG();
-        //printProductions();
     }
 }
 
@@ -142,12 +141,9 @@ Terminal* CFGBuilder::checkTerminal(string buffer) {
 }
 
 void CFGBuilder::setTerminals(set<TokenKey*> lexTokenKeys) {
-    // cout << "Lex Tokens :\n";
     for (auto tk : lexTokenKeys) {
         this->terminalsMapping[tk->getKey()] = new Terminal(tk->getKey());
-        // cout << tk->getKey() << endl;
     }
-    // cout << endl;
 }
 
 unordered_map<string, Terminal*> CFGBuilder::getTerminals() {
@@ -157,16 +153,6 @@ unordered_map<string, Terminal*> CFGBuilder::getTerminals() {
 vector<Production*> CFGBuilder::getProcs() {return this->procList;}
 
 void CFGBuilder::printProductions() {
-    for (auto p : this->procList) {
-        cout << endl << p->getLHS()->getId() << " --> ";
-        vector<vector<Elem*>> rhs = p->getRHS();
-        for (unsigned int i = 0; i < rhs.size(); ++i) {
-            for (auto e : rhs[i]) {
-                cout << e->getId() << " ";
-            }
-            if (i != rhs.size() - 1) cout << "|| ";
-        }
-        cout << endl;
-    }
+    for (auto p : this->procList) cout << p->toString();
     cout << endl;
 }

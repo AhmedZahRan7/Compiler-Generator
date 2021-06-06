@@ -27,12 +27,12 @@ private:
     vector<vector<Elem*>> parseRHS(string line);
     NonTerminal* addNonTerminal(string buffer);
     Terminal* checkTerminal(string buffer);
-    void printProductions();
 public:
     CFGBuilder(string path, set<TokenKey*> lexTokenKeys);
     void setTerminals(set<TokenKey*> lexTokenKeys);
     unordered_map<string, Terminal*> getTerminals();
     vector<Production*> getProcs();
+    void printProductions();
 };
 
 #endif

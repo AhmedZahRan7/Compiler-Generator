@@ -42,7 +42,7 @@ void LLParser::parse(Token* input) {
         if (tableResult.empty()) { // Case 1: discard this terminal and break if it goes to nothing in the table.
             cout << top->getId() << " -" << currT->getId() << "-> Nothing in table\n";
             cout << "Discard this terminal.\n";
-            break;
+            return;
         }
         output();
         LLStack.pop();

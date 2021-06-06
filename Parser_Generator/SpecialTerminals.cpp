@@ -1,6 +1,6 @@
 #include "specialTerminals.hpp"
 
-Terminal* EPSILON = new Terminal("E");
+Terminal* EPSILON = new Terminal("Epsilon");
 Terminal* DOLLAR_SIGN  = new Terminal("$");
 Elem* SYNC = new Elem("sync");
 
