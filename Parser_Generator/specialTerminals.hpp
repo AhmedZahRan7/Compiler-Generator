@@ -10,4 +10,5 @@ bool isTerminal(Elem* e);
 bool isNonTerminal(Elem* e);
 bool isSync(Elem* e);
 bool isEpsilon(Elem* e);
+bool isDollarSign(Elem* e);
 #endif

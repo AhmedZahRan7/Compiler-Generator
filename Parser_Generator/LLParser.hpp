@@ -9,6 +9,7 @@ class LLParser {
 private:
     unordered_map<NonTerminal*, unordered_map<Terminal*, vector<Elem*> >> parsingTable;
     stack<Elem*> LLStack;
+    vector<Terminal*> outputTerminals;
     unordered_map<string, Terminal*> terminalsMapping;
 public:
     LLParser();
@@ -16,7 +17,7 @@ public:
     void addToTable(NonTerminal* lhs, Terminal* symbol, vector<Elem*> elements);
     bool existInTable(NonTerminal* lhs, Terminal* symbol);
     void parse(Token* input);
-    void output(NonTerminal* lhs, Terminal* input);
+    void output();
 
 };
 

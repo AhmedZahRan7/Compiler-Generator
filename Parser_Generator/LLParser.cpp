@@ -2,6 +2,7 @@
 
 LLParser::LLParser(NonTerminal* startState, unordered_map<string, Terminal*> terminalsMapping) {
     this->terminalsMapping = terminalsMapping;
+    this->terminalsMapping[DOLLAR_SIGN->getId()] = DOLLAR_SIGN;
     this->LLStack.push(DOLLAR_SIGN);
     this->LLStack.push(startState);
 }
@@ -39,12 +40,14 @@ void LLParser::parse(Token* input) {
     while (isNonTerminal(top)) {
         vector<Elem*> tableResult = parsingTable[(NonTerminal*) top][currT];
         if (tableResult.empty()) { // Case 1: discard this terminal and break if it goes to nothing in the table.
+            cout << top->getId() << " -" << currT->getId() << "-> Nothing in table\n";
+            cout << "Discard this terminal.\n";
             break;
         }
+        output();
         LLStack.pop();
 
         if (!isSync(tableResult.front())) { // Case 2: if it's sync then pop top of stack only --> panic mode error recovery.
-            output((NonTerminal*) top, currT);
             if (!isEpsilon(tableResult.front())) { // Case 3: if the result from table is epsilon.
                 for (auto it = tableResult.rbegin(); it != tableResult.rend(); ++it) {
                     this->LLStack.push(*it);
@@ -58,8 +61,12 @@ void LLParser::parse(Token* input) {
     if (isTerminal(top)) {
         if (match((Terminal*) top, currT)) {
             LLStack.pop();
-            if (tk == "$" && LLStack.empty()) {
+            this->outputTerminals.push_back(currT);  // For output
+
+            if (isDollarSign(currT) && LLStack.empty()) {
+                output();
                 cout << "accept" << endl;
+                return;
             }
         }
         else {
@@ -69,19 +76,18 @@ void LLParser::parse(Token* input) {
     }
 }
 
-void LLParser::output(NonTerminal* lhs, Terminal* input) {
-    // cout << lhs->getId() << " ---> ";
-    // for (auto t : this->parsingTable[lhs][input]) {
-    //     cout << t->getId() << " ";
-    // }
+void LLParser::output() {
+    for (Terminal* t : this->outputTerminals) {
+        cout << t->getId() << " ";
+    }
+
     stack<Elem*> tmpStack;
     while (!this->LLStack.empty()) {
+        cout << this->LLStack.top()->getId() << " ";
         tmpStack.push(this->LLStack.top());
         this->LLStack.pop();
     }
-
     while (!tmpStack.empty()) {
-        cout << tmpStack.top()->getId() << " ";
         this->LLStack.push(tmpStack.top());
         tmpStack.pop();
     }
