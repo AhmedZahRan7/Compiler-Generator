@@ -2,8 +2,8 @@
 
 CFG::CFG(vector<Production*> rules) {
     this->rules = rules;
-    eliminateLeftRecursion();
-    // eliminateLeftRefactoring();
+    //eliminateLeftRecursion();
+     eliminateLeftRefactoring();
 }
 
 // putIn Aa | b in place of S
@@ -89,6 +89,107 @@ void CFG::eliminateLeftRecursion() {
         }
     }
     this->rules.insert(this->rules.end(), resultOfImmediateRecursion.begin(), resultOfImmediateRecursion.end());
+}
+
+void CFG::eliminateLeftRefactoring(){
+    cout<<"welcome"<<endl;
+    pair<int,int> pair ={1,0};
+    for (unsigned int i = 0; i < rules.size(); ++i) {
+    vector<vector<Elem*>> rhs = rules[i]->getRHS();
+    vector<int> commonElemContainer=commonElemIndeces(rhs); //vector for indexes for which components has the same commonElem
+     cout<<"container"<<endl;
+     if(commonElemContainer.size()!=0){
+    if(pair.second != i){
+        pair.first=1;
+    }
+     int CountOFCommonElements =countCommon(commonElemContainer, rhs);
+     cout<<"count ->"<<CountOFCommonElements<<endl;
+     vector<Elem*> commonElems;
+     for(int ii=0;ii<CountOFCommonElements;ii++){
+     commonElems.push_back(rhs[commonElemContainer[0]][ii]);
+     }
+     cout<<"wel"<<endl;
+     vector<vector<Elem*>> newRhs;
+      for(int ii=0;ii<commonElemContainer.size();ii++){
+          vector<Elem*> myvec=rhs[commonElemContainer[ii]];
+          myvec.erase(myvec.begin(), myvec.begin() + CountOFCommonElements);
+          if(myvec.empty()){
+              myvec.push_back(EPSILON);
+          }
+          newRhs.push_back(myvec);
+      }
+      cout<<"before"<<endl;
+     removeIndicesFromVector(rhs, commonElemContainer);
+     cout<<"after"<<endl;
+     NonTerminal* newLHS = new NonTerminal(rules[i]->getLHS()->getId() + string(pair.first++,factoringMark));
+     pair.second=i;
+     cout<<"after1"<<endl;
+     commonElems.push_back(newLHS);
+     cout<<"after2"<<endl;
+     rhs.push_back(commonElems);
+     rules[i]->setRHS(rhs);
+     cout<<"after3"<<endl;
+     Production* newProc = new Production(newLHS,newRhs);
+     cout<<"after4"<<endl;
+     rules.push_back(newProc);
+     i--;
+    }
+    
+    }
+cout<<"end"<<endl;
+}
+vector<int> CFG:: commonElemIndeces(vector<vector<Elem*>> rhs){
+   Elem* commonElem;
+   vector<int> commonElemContainer;
+   for (int j=0;j<rhs.size();j++) {
+        commonElem=rhs[j][0];
+        commonElemContainer.push_back(j);
+            for (int k=j+1;k<rhs.size();k++) {
+                if(commonElem==rhs[k][0]){
+                  commonElemContainer.push_back(k);
+                }
+            }
+            if(commonElemContainer.size()>1){
+                break;
+            }
+            else{
+            commonElemContainer.clear();
+            }
+        }
+    return commonElemContainer;
+}
+int CFG:: countCommon(std::vector<int> commonElemContainer,vector<vector<Elem*>> rhs){
+    cout<<"////////////////////////"<<rhs.size()<<endl;
+int CountOFCommonElements=1;
+for(int ii=0;ii<commonElemContainer.size();ii++){
+    cout<<commonElemContainer[ii]<<"//";
+}
+         bool flag=true;
+         while(flag){
+            for(int ii=1;ii<commonElemContainer.size();ii++){
+                cout<<"here11111";
+                if(CountOFCommonElements<rhs[commonElemContainer[ii]].size() && CountOFCommonElements<rhs[commonElemContainer[0]].size()){
+                    if(rhs[commonElemContainer[0]][CountOFCommonElements]!=rhs[commonElemContainer[ii]][CountOFCommonElements]){
+                   cout<<"here";
+                   flag=false;
+                  }
+                }
+                else {
+                    flag=false;
+                }
+            }
+
+            if(flag){
+                cout<<"CountOFCommonElements"<<endl;
+                CountOFCommonElements++;
+            }
+         }
+         cout<<"////////////////////////"<<endl;
+  return CountOFCommonElements;
+}
+void CFG::removeIndicesFromVector(std::vector<vector<Elem*>>& v, std::vector<int> rm )
+{
+    std::for_each(rm.crbegin(), rm.crend(), [&v](auto index) { v.erase(begin(v) + index); });
 }
 
 vector<Production*> CFG::getProcs() { return this->rules; }
