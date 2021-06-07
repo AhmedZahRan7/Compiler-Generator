@@ -2,8 +2,8 @@
 
 CFG::CFG(vector<Production*> rules) {
     this->rules = rules;
-    //eliminateLeftRecursion();
-     eliminateLeftRefactoring();
+    eliminateLeftRecursion();
+    eliminateLeftRefactoring();
 }
 
 // putIn Aa | b in place of S
@@ -14,7 +14,6 @@ void insertIntoRHS(unsigned int NonTPos, unsigned int vecPos, vector<vector<Elem
     // Also remove the target vector from the rhs before inserting the new ones.
     vector<Elem*> repeatedVec = rhs[vecPos];
     repeatedVec.erase(repeatedVec.begin() + NonTPos);
-    rhs.erase(rhs.begin() + vecPos);
     for (vector<Elem*> v : putIn) {
         vector<Elem*> currV = repeatedVec;
         currV.insert(currV.begin() + NonTPos, v.begin(), v.end());
@@ -24,19 +23,29 @@ void insertIntoRHS(unsigned int NonTPos, unsigned int vecPos, vector<vector<Elem
 
 bool match(NonTerminal* a, NonTerminal* b) { return a == b; }
 
+void removeIndicesFromVector(std::vector<vector<Elem*>>& v, std::vector<int> rm ) {
+    std::for_each(rm.crbegin(), rm.crend(), [&v](auto index) { v.erase(begin(v) + index); });
+}
+
 // S --> Aa | b
 // A --> Ac | dSe | f
-// then A --> Ac | dAae | dbe | f
+// then A --> Ac | f | dAae | dbe
 void replaceProduction(Production* putIn, Production* proc) {
     NonTerminal* nonTtoPutIn = putIn->getLHS();
     vector<vector<Elem*>> rhs = proc->getRHS();
-    for (unsigned int i = 0; i < rhs.size(); ++i) {
+    vector<int> replacedVecIndicesToBeDeleted;
+    // Stored right hand side in len to stop the replace after consuming the original rhs.
+    unsigned int len = rhs.size();
+    for (unsigned int i = 0; i < len; ++i) {
         for (unsigned int j = 0; j < rhs[i].size(); ++j) {
             if (isNonTerminal(rhs[i][j]) && match((NonTerminal*) rhs[i][j], nonTtoPutIn)) {
                 insertIntoRHS(j, i, putIn->getRHS(), rhs);
+                replacedVecIndicesToBeDeleted.push_back(i);
+                break;
             }
         }
     }
+    removeIndicesFromVector(rhs, replacedVecIndicesToBeDeleted);
     proc->setRHS(rhs);
 }
 
@@ -92,25 +101,21 @@ void CFG::eliminateLeftRecursion() {
 }
 
 void CFG::eliminateLeftRefactoring(){
-    cout<<"welcome"<<endl;
-    pair<int,int> pair ={1,0};
+    pair<unsigned int,unsigned int> pair ={1,0};
     for (unsigned int i = 0; i < rules.size(); ++i) {
     vector<vector<Elem*>> rhs = rules[i]->getRHS();
     vector<int> commonElemContainer=commonElemIndeces(rhs); //vector for indexes for which components has the same commonElem
-     cout<<"container"<<endl;
      if(commonElemContainer.size()!=0){
     if(pair.second != i){
         pair.first=1;
     }
      int CountOFCommonElements =countCommon(commonElemContainer, rhs);
-     cout<<"count ->"<<CountOFCommonElements<<endl;
      vector<Elem*> commonElems;
-     for(int ii=0;ii<CountOFCommonElements;ii++){
+     for(unsigned int ii=0;ii<CountOFCommonElements;ii++){
      commonElems.push_back(rhs[commonElemContainer[0]][ii]);
      }
-     cout<<"wel"<<endl;
      vector<vector<Elem*>> newRhs;
-      for(int ii=0;ii<commonElemContainer.size();ii++){
+      for(unsigned int ii=0;ii<commonElemContainer.size();ii++){
           vector<Elem*> myvec=rhs[commonElemContainer[ii]];
           myvec.erase(myvec.begin(), myvec.begin() + CountOFCommonElements);
           if(myvec.empty()){
@@ -118,33 +123,26 @@ void CFG::eliminateLeftRefactoring(){
           }
           newRhs.push_back(myvec);
       }
-      cout<<"before"<<endl;
      removeIndicesFromVector(rhs, commonElemContainer);
-     cout<<"after"<<endl;
      NonTerminal* newLHS = new NonTerminal(rules[i]->getLHS()->getId() + string(pair.first++,factoringMark));
      pair.second=i;
-     cout<<"after1"<<endl;
      commonElems.push_back(newLHS);
-     cout<<"after2"<<endl;
      rhs.push_back(commonElems);
      rules[i]->setRHS(rhs);
-     cout<<"after3"<<endl;
      Production* newProc = new Production(newLHS,newRhs);
-     cout<<"after4"<<endl;
      rules.push_back(newProc);
      i--;
     }
-    
+
     }
-cout<<"end"<<endl;
 }
 vector<int> CFG:: commonElemIndeces(vector<vector<Elem*>> rhs){
    Elem* commonElem;
    vector<int> commonElemContainer;
-   for (int j=0;j<rhs.size();j++) {
+   for (unsigned int j=0;j<rhs.size();j++) {
         commonElem=rhs[j][0];
         commonElemContainer.push_back(j);
-            for (int k=j+1;k<rhs.size();k++) {
+            for (unsigned int k=j+1;k<rhs.size();k++) {
                 if(commonElem==rhs[k][0]){
                   commonElemContainer.push_back(k);
                 }
@@ -159,18 +157,12 @@ vector<int> CFG:: commonElemIndeces(vector<vector<Elem*>> rhs){
     return commonElemContainer;
 }
 int CFG:: countCommon(std::vector<int> commonElemContainer,vector<vector<Elem*>> rhs){
-    cout<<"////////////////////////"<<rhs.size()<<endl;
-int CountOFCommonElements=1;
-for(int ii=0;ii<commonElemContainer.size();ii++){
-    cout<<commonElemContainer[ii]<<"//";
-}
+unsigned int CountOFCommonElements=1;
          bool flag=true;
          while(flag){
-            for(int ii=1;ii<commonElemContainer.size();ii++){
-                cout<<"here11111";
+            for(unsigned int ii=1;ii<commonElemContainer.size();ii++){
                 if(CountOFCommonElements<rhs[commonElemContainer[ii]].size() && CountOFCommonElements<rhs[commonElemContainer[0]].size()){
                     if(rhs[commonElemContainer[0]][CountOFCommonElements]!=rhs[commonElemContainer[ii]][CountOFCommonElements]){
-                   cout<<"here";
                    flag=false;
                   }
                 }
@@ -180,16 +172,10 @@ for(int ii=0;ii<commonElemContainer.size();ii++){
             }
 
             if(flag){
-                cout<<"CountOFCommonElements"<<endl;
                 CountOFCommonElements++;
             }
          }
-         cout<<"////////////////////////"<<endl;
   return CountOFCommonElements;
-}
-void CFG::removeIndicesFromVector(std::vector<vector<Elem*>>& v, std::vector<int> rm )
-{
-    std::for_each(rm.crbegin(), rm.crend(), [&v](auto index) { v.erase(begin(v) + index); });
 }
 
 vector<Production*> CFG::getProcs() { return this->rules; }

@@ -15,7 +15,6 @@ private:
     vector<Production*> rules;
     void eliminateLeftRecursion();
     void eliminateLeftRefactoring();
-    void removeIndicesFromVector(std::vector<vector<Elem*>>& v, std::vector<int> rm );
     int countCommon(std::vector<int> commonElemContainer,vector<vector<Elem*>> rhs);
     vector<int> commonElemIndeces(vector<vector<Elem*>> rhs);
 public:

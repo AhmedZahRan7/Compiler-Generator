@@ -62,7 +62,7 @@ void LLParser::parse(Token* input) {
         if (match((Terminal*) top, currT)) {
             LLStack.pop();
             this->outputTerminals.push_back(currT);  // For output
-
+            
             if (isDollarSign(currT) && LLStack.empty()) {
                 output();
                 cout << "accept" << endl;
@@ -80,6 +80,7 @@ void LLParser::output() {
     for (Terminal* t : this->outputTerminals) {
         cout << t->getId() << " ";
     }
+    cout << "\t";
 
     stack<Elem*> tmpStack;
     while (!this->LLStack.empty()) {

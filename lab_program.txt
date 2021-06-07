@@ -1,1 +1,14 @@
-id+id
+int sum; float count; pass = 10; mnt = sum + 1;
+while (pass !=
+10)
+{
+pass = pass + 1 ;
+}
+
+if (sum == 10) {
+    if (count ==  1) {
+        count = count + 1;
+    } else {
+        pass = pass + 5;
+    }
+}
