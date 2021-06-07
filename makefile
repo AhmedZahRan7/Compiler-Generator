@@ -6,15 +6,13 @@ PARSER_SRC := $(wildcard $(PARSER_DIR)/*.cpp)
 CC = g++
 CFLAGS = -Wall -g -I$(LEX_DIR) -I$(PARSER_DIR)
 
-#all := main.cpp
-all := test.cpp
+all := main.cpp
 all += $(LEX_SRC)
 all += $(PARSER_SRC)
 outName = run
 
 build:clean
 	$(CC) $(CFLAGS) $(all) -o $(outName)
-	run
 
 clean:
 	del -f *.o *.exe

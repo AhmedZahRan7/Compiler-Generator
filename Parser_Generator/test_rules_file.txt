@@ -1,3 +1,0 @@
-E = a b B| a B  | c d g | c d e B | c d f B | a | c d
-A= B a | B b
-
