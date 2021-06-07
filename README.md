@@ -1,10 +1,10 @@
 # Compiler Generator
 In this repo the two front-end compiler [Lexiacal-Analyzer Generator and Parser Generator] implemented in C++
 contributors:
-1.Ahmed Ali
-1.Abobakr Abdelaziz
-1.Elsayed Akram
-1.Fares Medhat
+1. Ahmed Ali
+2. Abobakr Abdelaziz
+3. Elsayed Akram
+4. Fares Medhat
 #### The Lexiacal-Analyzer Generator
 ##### Overview
 - What is lexical analysis?  lexical analysis or tokenization is the process of converting a sequence of characters (lexemes)- such as in a computer program - into a sequence of tokens - strings with an assigned and thus identified meaning -
