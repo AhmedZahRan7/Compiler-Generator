@@ -1,14 +1,6 @@
-int sum; float count; pass = 10; mnt = sum + 1;
-while (pass !=
-10)
+int x;
+x = 5;
+if (x > 2)
 {
-pass = pass + 1 ;
-}
-
-if (sum == 10) {
-    if (count ==  1) {
-        count = count + 1;
-    } else {
-        pass = pass + 5;
-    }
+    x = 0;
 }

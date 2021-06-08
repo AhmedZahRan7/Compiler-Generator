@@ -18,7 +18,7 @@ public:
     bool existInTable(NonTerminal* lhs, Terminal* symbol);
     void parse(Token* input);
     void output();
-
+    void toCSV();
 };
 
 #endif

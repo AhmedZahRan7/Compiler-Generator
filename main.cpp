@@ -30,6 +30,7 @@ int main(int argc, char** argv) {
         auto cfg = new CFG(cfgBuilder->getProcs());
         auto generator = new LLParserGenerator(cfg->getProcs());
         auto parser = generator->generateParser(cfgBuilder->getTerminals());
+        //parser->toCSV();
 
         string line;
         while (getline(srcProgram,line)) {
@@ -45,7 +46,7 @@ int main(int argc, char** argv) {
         srcProgram.close();
         Token* dollar_sign = new Token(new TokenKey("$"), new TokenValue("$"));
         parser->parse(dollar_sign);
-        
+
         return 0;
     }
 }

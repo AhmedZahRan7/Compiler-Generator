@@ -62,7 +62,7 @@ void LLParser::parse(Token* input) {
         if (match((Terminal*) top, currT)) {
             LLStack.pop();
             this->outputTerminals.push_back(currT);  // For output
-            
+
             if (isDollarSign(currT) && LLStack.empty()) {
                 output();
                 cout << "accept" << endl;
@@ -80,7 +80,6 @@ void LLParser::output() {
     for (Terminal* t : this->outputTerminals) {
         cout << t->getId() << " ";
     }
-    cout << "\t";
 
     stack<Elem*> tmpStack;
     while (!this->LLStack.empty()) {
@@ -93,4 +92,30 @@ void LLParser::output() {
         tmpStack.pop();
     }
     cout << '\n';
+}
+
+void LLParser::toCSV() {
+    ofstream file;
+    file.open("ParsingTable.csv", ofstream::out | ofstream::trunc);
+    file << "NonTerminal, ";
+    for (auto mp : this->terminalsMapping) {
+        if (mp.first == ",") file << "\"" << mp.first << "\"" << ',';
+        else file << mp.first << ',';
+    }
+    file << endl;
+
+    for (auto outerMap : this->parsingTable) {
+        string nt = outerMap.first->getId();
+        file << nt << ',';
+        unordered_map<Terminal*, vector<Elem*>> innerMap = outerMap.second;
+        for (auto tMap : this->terminalsMapping) {
+            if (innerMap.find(tMap.second) != innerMap.end()) {
+                file << nt << " ---> ";
+                for (auto e : innerMap[tMap.second]) file << e->getId() << " ";
+            }
+            file << ',';
+        }
+        file << endl;
+    }
+    file.close();
 }
